@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <style>
+    canvas {
+      background-color: rgb(252, 252, 252);
+      width: 100%;
+      height: auto;
+      padding: 1em;
+		}
+  </style>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="col-sm-12">
+            <form>
+              <div class="form-group">
+                <div class="row">
+                  <div class="col-xs-6">
+                    <label for="valorF">&Aacute;ngulo F (entre 30° y 60°)</label>
+                    <input type="number" class="form-control" id="valorF" placeholder="&Aacute;ngulo F">
+                  </div>
+                  <div class="col-xs-6">
+                    <label for="valorK">&Aacute;ngulo K (entre 110° y 160°)</label>
+                    <input type="number" class="form-control" id="valorK" placeholder="&Aacute;ngulo K">
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div id="graph-container" class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+          <canvas id="canvas-1"></canvas>
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+    </div>
+    
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="./bootstrap/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="./bootstrap/bootstrap.min.js"></script>
+    <!-- Functional JS -->
+    <script src="2rectas1secante.2.js"></script>
+  </body>
+</html>
