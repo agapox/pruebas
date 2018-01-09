@@ -3,7 +3,7 @@ $(document).ready(function() {
   $('button').click(function(ev) {
     ev.preventDefault();
     var rotarPlano = $('#rotarPlano').val();
-    var valorF = $('#valorJ').val();
+    var valorJ = $('#valorJ').val();
 
     console.log('rotarPlano ' + rotarPlano);
     console.log('valorJ ' + valorJ);
@@ -15,6 +15,8 @@ $(document).ready(function() {
 
 var drawCanvas = function(rotarPlano, anguloJ) {
 
+  anguloJ = parseInt(anguloJ);
+  
   console.log('drawCanvas')
 
   var c = document.querySelector("canvas");
@@ -33,32 +35,190 @@ var drawCanvas = function(rotarPlano, anguloJ) {
   ctx.rotate(rotarPlano*Math.PI/180);
   // Excersise variables
 
-  var linesWidth = 4,
+  var linesWidth = 3,
       fontSizeVariables,
       arcsRadius = mainMeasure/7;
 
   fontSizeVariables = mainMeasure/25;
-
+  
+  ctx.lineWidth = linesWidth;
+  ctx.strokeStyle = "black";
 
   ctx.rotate(-90*Math.PI/180);
 
-  var xAxis =  new Path2D();
-  ctx.beginPath(xAxis);
-  ctx.lineWidth = linesWidth;
-  xAxis.moveTo(-mainMeasure/2,0);
-  xAxis.lineTo(mainMeasure/2,0);
-  ctx.strokeStyle = "black";
-  ctx.closePath(xAxis);
+  // Line1 horizontal
+  var line1 =  new Path2D();
+  ctx.beginPath(line1);
+  line1.moveTo(-mainMeasure/2,0);
+  line1.lineTo(mainMeasure/2,0);
+  ctx.closePath(line1);
+  ctx.stroke(line1);
 
-  ctx.stroke(xAxis);
+  // Line2 vertical
+  var line2 =  new Path2D();
+  ctx.beginPath(line2);
+  line2.moveTo(0,-mainMeasure);
+  line2.lineTo(0,mainMeasure);
+  ctx.closePath(line2);
+  ctx.stroke(line2);
 
-  var yAxis =  new Path2D();
-  ctx.beginPath(yAxis);
-  yAxis.moveTo(0,-mainMeasure);
-  yAxis.lineTo(0,mainMeasure);
-  ctx.strokeStyle = "black";
-  ctx.closePath(yAxis);
+  // Arco anguloJ
+  var arcAnguloJ = new Path2D();
+  ctx.beginPath(arcAnguloJ);
+  arcAnguloJ.arc(0,0,mainMeasure/5,(90-anguloJ)*Math.PI/180,(90)*Math.PI/180,false)
+  ctx.closePath(arcAnguloJ);
+  ctx.stroke(arcAnguloJ);
 
-  ctx.stroke(yAxis);
+  // Arco anguloK
+  var arcAnguloK = new Path2D();
+  ctx.beginPath(arcAnguloK);
+  arcAnguloK.arc(0,0,mainMeasure/7,(270)*Math.PI/180,(90-anguloJ)*Math.PI/180,false)
+  ctx.closePath(arcAnguloK);
+  ctx.stroke(arcAnguloK);
+  
+  // Arco anguloF
+  var arcAnguloF = new Path2D();
+  ctx.beginPath(arcAnguloF);
+  arcAnguloF.arc(0,0,mainMeasure/5,(180+(90-anguloJ))*Math.PI/180,(270)*Math.PI/180,false)
+  ctx.closePath(arcAnguloF);
+  ctx.stroke(arcAnguloF); 
+  
+  // Arco anguloH
+  var arcAnguloH = new Path2D();
+  ctx.beginPath(arcAnguloH);
+  arcAnguloH.arc(0,0,mainMeasure/6,90*Math.PI/180,180*Math.PI/180,false)
+  ctx.closePath(arcAnguloH);
+  ctx.stroke(arcAnguloH);
+  
+  ctx.save();
+  
+  // nomenclatura anguloJ begin
+  
+  if (rotarPlano >= 0 && rotarPlano <= 90 ) {
 
+    ctx.translate(10,mainMeasure/7);
+
+  } else if (rotarPlano > 90 && rotarPlano <= 240 ) {
+
+    ctx.translate(10+20*rotarPlano/100,mainMeasure/7);
+
+  } else if (rotarPlano > 240 && rotarPlano <= 280 ) {
+
+    ctx.translate(10+15*rotarPlano/100,mainMeasure/7);
+
+  } else {
+
+    ctx.translate(10+8*rotarPlano/100,mainMeasure/7,mainMeasure/7);
+
+  }
+
+  ctx.rotate(-rotarPlano*Math.PI/180);
+  ctx.rotate(90*Math.PI/180);
+  
+
+  var nomAnguloJ = new Path2D();
+  ctx.beginPath(nomAnguloJ);
+  ctx.font = mainMeasure/18 + 'px Arial';
+  ctx.fillText("J",0,0);
+  ctx.closePath(nomAnguloJ);
+  ctx.stroke(nomAnguloJ);
+
+  ctx.restore();
+
+  // nomenclatura anguloJ end
+
+  ctx.save();
+
+  // nomenclatura anguloK begin
+
+  
+  if (rotarPlano >= 0 && rotarPlano <= 90 ) {
+    
+    ctx.translate(10,-mainMeasure/12+10*rotarPlano/100);
+
+  } else if (rotarPlano > 90 && rotarPlano <= 220 ) {
+
+    ctx.translate(10+20*rotarPlano/100,-mainMeasure/12+20*rotarPlano/100);
+
+  } else if (rotarPlano > 220 && rotarPlano <= 290 ) {
+
+    ctx.translate(10+20*rotarPlano/100,-mainMeasure/12+5*rotarPlano/100);
+
+  } else {
+
+    ctx.translate(10+10*rotarPlano/100,-mainMeasure/12+5*rotarPlano/100);
+
+  }
+
+  ctx.rotate(-rotarPlano*Math.PI/180);
+  ctx.rotate(90*Math.PI/180);
+
+  var nomAnguloJ = new Path2D();
+  ctx.beginPath(nomAnguloJ);
+  ctx.font = mainMeasure/18 + 'px Arial';
+  ctx.fillText("K",0,0);
+  ctx.closePath(nomAnguloJ);
+  ctx.stroke(nomAnguloJ);
+
+  ctx.restore();
+
+  // nomenclatura anguloK End
+
+  ctx.save();
+
+  // nomenclatura anguloF begin
+ 
+  if (rotarPlano >= 0 && rotarPlano <= 110 ) {
+    
+    ctx.translate(-mainMeasure/20-mainMeasure/20*rotarPlano/100,-mainMeasure/8+10*rotarPlano/100);
+
+  } else if (rotarPlano > 110 && rotarPlano <= 160 ) {
+
+    ctx.translate(-mainMeasure/20-mainMeasure/30*rotarPlano/100,-mainMeasure/8+20*rotarPlano/100);
+
+  } else if (rotarPlano > 160 && rotarPlano <= 210 ) {
+
+    ctx.translate(-mainMeasure/20+mainMeasure/50*rotarPlano/100,-mainMeasure/8+10*rotarPlano/100);
+
+  } else if (rotarPlano > 210 && rotarPlano <= 280 ) {
+
+    ctx.translate(-mainMeasure/20+mainMeasure/65*rotarPlano/100,-mainMeasure/8-10*rotarPlano/100);
+
+  } else {
+
+    ctx.translate(-mainMeasure/60-mainMeasure/150*rotarPlano/100,-mainMeasure/8-10*rotarPlano/100);
+
+  }
+
+  ctx.rotate(-rotarPlano*Math.PI/180);
+  ctx.rotate(90*Math.PI/180);
+
+
+  var nomAnguloF = new Path2D();
+  ctx.beginPath(nomAnguloF);
+  ctx.font = mainMeasure/18 + 'px Arial';
+  ctx.fillText("F",0,0);
+  ctx.closePath(nomAnguloF);
+  ctx.stroke(nomAnguloF);
+
+  ctx.restore();
+
+  // nomenclatura anguloF End
+
+  
+  
+  // nomenclatura anguloF
+  // nomenclatura anguloH
+
+  var ctx2 = c.getContext("2d");
+  ctx2.rotate(-anguloJ*Math.PI/180);
+  
+  // Line3 diagonal con angulo
+  var line3 =  new Path2D();
+  ctx2.beginPath(line3);
+  line3.moveTo(0,-mainMeasure);
+  line3.lineTo(0,mainMeasure);
+  ctx2.closePath(line3);
+  ctx2.stroke(line3);
+  
 }
