@@ -4,20 +4,26 @@ $(document).ready(function() {
     ev.preventDefault();
     var rotarPlano = $('#rotarPlano').val();
     var valorJ = $('#valorJ').val();
+    var colorRectas = $('#colorRectas').val();
+    var colorArcos = $('#colorArc').val();
 
-    console.log('rotarPlano ' + rotarPlano);
-    console.log('valorJ ' + valorJ);
+    console.log('rotarPlano = ' + rotarPlano);
+    console.log('valorJ =' + valorJ);
+    console.log('Color Recta = ' + colorRectas);
+    console.log('Color Arcos = ' + colorArcos);
     
-    drawCanvas(rotarPlano, valorJ)
+    drawCanvas(rotarPlano, valorJ, colorRectas, colorArcos)
   });
   
 });
 
-var drawCanvas = function(rotarPlano, anguloJ) {
+var drawCanvas = function(rotarPlano, anguloJ, colorRectas, colorArcos) {
 
   anguloJ = parseInt(anguloJ);
   
   console.log('drawCanvas')
+  console.log('Color Recta = ' + colorRectas);
+  console.log('Color Arcos = ' + colorArcos);
 
   var c = document.querySelector("canvas");
 
@@ -42,7 +48,7 @@ var drawCanvas = function(rotarPlano, anguloJ) {
   fontSizeVariables = mainMeasure/25;
   
   ctx.lineWidth = linesWidth;
-  ctx.strokeStyle = "black";
+  ctx.strokeStyle = colorRectas;
 
   ctx.rotate(-90*Math.PI/180);
 
@@ -61,6 +67,8 @@ var drawCanvas = function(rotarPlano, anguloJ) {
   line2.lineTo(0,mainMeasure);
   ctx.closePath(line2);
   ctx.stroke(line2);
+
+  ctx.strokeStyle = colorArcos;
 
   // Arco anguloJ
   var arcAnguloJ = new Path2D();
@@ -168,15 +176,15 @@ var drawCanvas = function(rotarPlano, anguloJ) {
 
   // nomenclatura anguloF begin
  
-  if (rotarPlano >= 0 && rotarPlano <= 110 ) {
+  if (rotarPlano >= 0 && rotarPlano <= 50 ) {
     
-    ctx.translate(-mainMeasure/20-mainMeasure/20*rotarPlano/100,-mainMeasure/8+10*rotarPlano/100);
+    ctx.translate(-mainMeasure/20-mainMeasure/20*rotarPlano/100,-mainMeasure/8-10*rotarPlano/100);
 
-  } else if (rotarPlano > 110 && rotarPlano <= 160 ) {
+  } else if (rotarPlano > 50 && rotarPlano <= 110 ) {
 
-    ctx.translate(-mainMeasure/20-mainMeasure/30*rotarPlano/100,-mainMeasure/8+20*rotarPlano/100);
+    ctx.translate(-mainMeasure/20-mainMeasure/50*rotarPlano/100,-mainMeasure/6+20*rotarPlano/100);
 
-  } else if (rotarPlano > 160 && rotarPlano <= 210 ) {
+  } else if (rotarPlano > 110 && rotarPlano <= 210 ) {
 
     ctx.translate(-mainMeasure/20+mainMeasure/50*rotarPlano/100,-mainMeasure/8+10*rotarPlano/100);
 
@@ -205,10 +213,45 @@ var drawCanvas = function(rotarPlano, anguloJ) {
 
   // nomenclatura anguloF End
 
-  
-  
-  // nomenclatura anguloF
-  // nomenclatura anguloH
+  ctx.save();
+
+  // nomenclatura anguloH begin
+ 
+  if (rotarPlano >= 0 && rotarPlano <= 160 ) {
+    
+    ctx.translate(-mainMeasure/15-mainMeasure/40*rotarPlano/100,mainMeasure/30+mainMeasure/30*rotarPlano/100);
+
+  } else if (rotarPlano > 160 && rotarPlano <= 200 ) {
+
+    ctx.translate(-mainMeasure/20-mainMeasure/40*rotarPlano/100,mainMeasure/40+mainMeasure/40*rotarPlano/100);
+
+  } else if (rotarPlano > 200 && rotarPlano <= 280 ) {
+
+    ctx.translate(-mainMeasure/10+mainMeasure/40*rotarPlano/100,mainMeasure/40+mainMeasure/40*rotarPlano/100);
+
+  } else {
+
+    ctx.translate(-mainMeasure/7+mainMeasure/40*rotarPlano/100,+mainMeasure/7-mainMeasure/40*rotarPlano/100);
+
+  }
+
+
+  ctx.rotate(-rotarPlano*Math.PI/180);
+  ctx.rotate(90*Math.PI/180);
+
+
+  var nomAnguloH = new Path2D();
+  ctx.beginPath(nomAnguloH);
+  ctx.font = mainMeasure/18 + 'px Arial';
+  ctx.fillText("H",0,0);
+  ctx.closePath(nomAnguloH);
+  ctx.stroke(nomAnguloH);
+
+  ctx.restore();
+
+  // nomenclatura anguloH End
+
+  ctx.strokeStyle = colorRectas;
 
   var ctx2 = c.getContext("2d");
   ctx2.rotate(-anguloJ*Math.PI/180);
