@@ -42,13 +42,17 @@
                     <label for="">&Aacute;ngulo J (30° a 70°)</label>
                     <input type="number" class="form-control" id="valorJ" placeholder="&Aacute;ngulo J (30° a 70°)">
                   </div>
-                  <div class="col-sm-2">
-                    <label for="">Color Rectas</label>
-                    <input type="color" class="form-control" id="colorRectas" value="#000f84" placeholder="Color Rectas">
+                  <div class="col-sm-1">
+                    <label for="">Rectas</label>
+                    <input type="color" class="form-control" id="colorRectas" value="#00C7CA" placeholder="Color Rectas">
                   </div>
-                  <div class="col-sm-2">
-                    <label for="">Color Arcos</label>
-                    <input type="color" class="form-control" id="colorArc" value="#ea2020" placeholder="Color Arcos">
+                  <div class="col-sm-1">
+                    <label for="">Arcos</label>
+                    <input type="color" class="form-control" id="colorArc" value="#00C7CA" placeholder="Color Arcos">
+                  </div>
+                  <div class="col-sm-1">
+                    <label for="">Lentras</label>
+                    <input type="color" class="form-control" id="colorLetras" value="#00C7CA" placeholder="Color Arcos">
                   </div>
                 </div>
               </div>
@@ -60,7 +64,7 @@
       <div id="graph-container" class="row">
         <div class="col-sm-2"></div>
         <div class="col-sm-8">
-          <canvas id="canvas-1"></canvas>
+          <canvas id="oneLineTwoStrokes"></canvas>
         </div>
         <div class="col-sm-2"></div>
       </div>
@@ -72,6 +76,6 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="./../bootstrap/bootstrap.min.js"></script>
     <!-- Functional JS -->
-    <script src="3rectas1angulo90.js"></script>
+    <script src="unaRectaDosRayos.js"></script>
   </body>
 </html>
