@@ -5,19 +5,32 @@ $(document).ready(function() {
     var rotarPlano = $('#rotarPlano').val();
     var valorF = $('#valorF').val();
     var valorK = $('#valorK').val();
+    var colorRectas = $('#colorRectas').val();
+    var colorArcos = $('#colorArc').val();
+    var colorLetras = $('#colorLetras').val();
 
-    console.log('rotarPlano ' + rotarPlano);
-    console.log('valorF ' + valorF);
-    console.log('valorK ' + valorK);    
+    console.log('rotarPlano = ' + rotarPlano);
+    console.log('valorF =' + valorF);
+    console.log('valorK =' + valorK);
+    console.log('Color Recta = ' + colorRectas);
+    console.log('Color Arcos = ' + colorArcos);
     
-    drawCanvas(rotarPlano, valorF,valorK)
+    drawCanvas(rotarPlano, valorF, valorK, colorRectas, colorArcos, colorLetras)
   });
   
 });
 
-var drawCanvas = function(rotarPlano, anguloF, anguloK) {
+var drawCanvas = function(rotarPlano, anguloF, anguloK, colorRectas, colorArcos, colorLetras) {
 
-  console.log('drawCanvas')
+  console.log('drawCanvas');
+
+  colorRectas === undefined ? colorRectas = '#00c7ca' : colorRectas;
+  colorArcos === undefined ?  colorArcos = '#00c7ca' : colorRectas;
+  colorLetras === undefined ? colorLetras = '#00c7ca' : colorRectas;
+
+  var valorColorRectas = colorRectas;
+  var valorColorArcos = colorArcos;
+  var valorColorLetras = colorLetras;
 
   var c = document.querySelector("canvas");
 
@@ -35,11 +48,7 @@ var drawCanvas = function(rotarPlano, anguloF, anguloK) {
   ctx.rotate(rotarPlano*Math.PI/180);
   // Excersise variables
 
-  var initAngle = 0,
-      linesWidth = 4,
-      lineAC,
-      lineFD,
-      lineBE, // línea secante de AC y FD
+  var linesWidth = 2,
       fontSizeVariables,
       arcsRadius = mainMeasure/7;
 
@@ -47,26 +56,6 @@ var drawCanvas = function(rotarPlano, anguloF, anguloK) {
 
 
   ctx.rotate(-90*Math.PI/180);
-/*
-  var xAxis =  new Path2D();
-  ctx.beginPath(xAxis);
-  xAxis.moveTo(-mainMeasure/2,0);
-  xAxis.lineTo(mainMeasure/2,0);
-  ctx.strokeStyle = "black";
-  ctx.closePath(xAxis);
-
-  ctx.stroke(xAxis);
-
-  var yAxis =  new Path2D();
-  ctx.beginPath(yAxis);
-  yAxis.moveTo(0,-mainMeasure);
-  yAxis.lineTo(0,mainMeasure);
-  ctx.strokeStyle = "black";
-  ctx.closePath(yAxis);
-
-  ctx.stroke(yAxis);
-*/
-
   
   mainLine = new Path2D();
   ctx.beginPath(mainLine);

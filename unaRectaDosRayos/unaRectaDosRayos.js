@@ -12,8 +12,10 @@ $(document).ready(function() {
     console.log('valorJ =' + valorJ);
     console.log('Color Recta = ' + colorRectas);
     console.log('Color Arcos = ' + colorArcos);
+    console.log('Color Letras = ' + colorLetras);
+    console.log('Color Letras = ' + colorLetras);
     
-    unaRectaDosRayos(rotarPlano, valorJ,colorRectas, colorArcos)
+    unaRectaDosRayos(rotarPlano, valorJ, colorRectas, colorArcos, colorLetras)
   });
   
 });
@@ -136,7 +138,7 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   
   } else if (rotarPlano > 90 && rotarPlano <= 240 ) {
   
-      ctx.translate(10+20*rotarPlano/100,mainMeasure/7);
+      ctx.translate(mainMeasure/12*rotarPlano/100,mainMeasure/7);
   
   } else if (rotarPlano > 240 && rotarPlano <= 280 ) {
   
@@ -210,13 +212,13 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
       
       ctx.translate(-mainMeasure/20-mainMeasure/20*rotarPlano/100,-mainMeasure/8-10*rotarPlano/100);
   
-  } else if (rotarPlano > 50 && rotarPlano <= 110 ) {
+  } else if (rotarPlano > 50 && rotarPlano <= 90 ) {
   
       ctx.translate(-mainMeasure/20-mainMeasure/50*rotarPlano/100,-mainMeasure/6+20*rotarPlano/100);
   
-  } else if (rotarPlano > 110 && rotarPlano <= 210 ) {
+  } else if (rotarPlano > 90 && rotarPlano <= 210 ) {
   
-      ctx.translate(-mainMeasure/20+mainMeasure/50*rotarPlano/100,-mainMeasure/8+10*rotarPlano/100);
+      ctx.translate(-mainMeasure/17+mainMeasure/50*rotarPlano/100,-mainMeasure/8+10*rotarPlano/100);
   
   } else if (rotarPlano > 210 && rotarPlano <= 280 ) {
   
@@ -282,13 +284,11 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   
   // nomenclatura anguloH End
   
-  ctx.strokeStyle = colorRectas;
-  
   var ctx2 = c.getContext("2d");
 
   ctx2.lineWidth = linesWidth;
 
-  ctx2.strokeStyle = valorColorLetras;
+  ctx2.strokeStyle = valorColorRectas;
 
   ctx2.rotate(-anguloJ*Math.PI/180);
   
