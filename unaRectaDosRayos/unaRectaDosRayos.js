@@ -74,6 +74,16 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   arcsRadius = mainMeasure/7;
   
   fontSizeVariables = mainMeasure/25;
+
+
+  // Formato de Texto BEGIN
+
+  // Centrado Horizontal
+  ctx.textAlign = "center";
+  // Centrado Vertical
+  ctx.textBaseline = 'middle';
+
+  // Formato de Texto BEGIN
   
   ctx.lineWidth = linesWidth;
   ctx.strokeStyle = valorColorRectas;
@@ -132,23 +142,7 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   // nomenclatura anguloJ begin
   ctx.fillStyle = valorColorLetras;
   
-  if (rotarPlano >= 0 && rotarPlano <= 90 ) {
-  
-      ctx.translate(10,mainMeasure/7);
-  
-  } else if (rotarPlano > 90 && rotarPlano <= 240 ) {
-  
-      ctx.translate(mainMeasure/12*rotarPlano/100,mainMeasure/7);
-  
-  } else if (rotarPlano > 240 && rotarPlano <= 280 ) {
-  
-      ctx.translate(10+15*rotarPlano/100,mainMeasure/7);
-  
-  } else {
-  
-      ctx.translate(mainMeasure/90*(1+rotarPlano/100),mainMeasure/7,mainMeasure/7);
-  
-  }
+  ctx.translate(mainMeasure/60+mainMeasure/40*anguloJ/30,mainMeasure/6-mainMeasure/40*anguloJ/30);
   
   ctx.rotate(-rotarPlano*Math.PI/180);
   ctx.rotate(90*Math.PI/180);
@@ -166,28 +160,12 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   // nomenclatura anguloJ end
   
   ctx.save();
+
   
   // nomenclatura anguloK begin
   ctx.fillStyle = valorColorLetras;
   
-  
-  if (rotarPlano >= 0 && rotarPlano <= 90 ) {
-      
-      ctx.translate(10,-mainMeasure/12+10*rotarPlano/100);
-  
-  } else if (rotarPlano > 90 && rotarPlano <= 220 ) {
-  
-      ctx.translate(10+20*rotarPlano/100,-mainMeasure/12+20*rotarPlano/100);
-  
-  } else if (rotarPlano > 220 && rotarPlano <= 290 ) {
-  
-      ctx.translate(10+20*rotarPlano/100,-mainMeasure/12+5*rotarPlano/100);
-  
-  } else {
-  
-      ctx.translate(mainMeasure/12+rotarPlano/100,-mainMeasure/12+5*rotarPlano/100);
-  
-  }
+  ctx.translate(mainMeasure/12,-mainMeasure/20);
   
   ctx.rotate(-rotarPlano*Math.PI/180);
   ctx.rotate(90*Math.PI/180);
@@ -202,33 +180,14 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   ctx.restore();
   
   // nomenclatura anguloK End
+
   
   ctx.save();
   
   // nomenclatura anguloF begin
   ctx.fillStyle = valorColorLetras;
-  
-  if (rotarPlano >= 0 && rotarPlano <= 50 ) {
-      
-      ctx.translate(-mainMeasure/20-mainMeasure/20*rotarPlano/100,-mainMeasure/8-10*rotarPlano/100);
-  
-  } else if (rotarPlano > 50 && rotarPlano <= 90 ) {
-  
-      ctx.translate(-mainMeasure/20-mainMeasure/50*rotarPlano/100,-mainMeasure/6+20*rotarPlano/100);
-  
-  } else if (rotarPlano > 90 && rotarPlano <= 210 ) {
-  
-      ctx.translate(-mainMeasure/17+mainMeasure/50*rotarPlano/100,-mainMeasure/8+10*rotarPlano/100);
-  
-  } else if (rotarPlano > 210 && rotarPlano <= 280 ) {
-  
-      ctx.translate(-mainMeasure/20+mainMeasure/65*rotarPlano/100,-mainMeasure/8-10*rotarPlano/100);
-  
-  } else {
-  
-      ctx.translate(-mainMeasure/35-mainMeasure/200*rotarPlano/100,-mainMeasure/8-10*rotarPlano/100);
-  
-  }
+
+  ctx.translate(-mainMeasure/60-mainMeasure/40*anguloJ/30,-mainMeasure/6+mainMeasure/40*anguloJ/30);
   
   ctx.rotate(-rotarPlano*Math.PI/180);
   ctx.rotate(90*Math.PI/180);
@@ -243,31 +202,15 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   
   ctx.restore();
   
+  
   // nomenclatura anguloF End
   
   ctx.save();
   
   // nomenclatura anguloH begin
-  ctx.fillStyle = valorColorLetras;
+  ctx.fillStyle = valorColorLetras;  
   
-  if (rotarPlano >= 0 && rotarPlano <= 160 ) {
-      
-      ctx.translate(-mainMeasure/15-mainMeasure/40*rotarPlano/100,mainMeasure/30+mainMeasure/30*rotarPlano/100);
-  
-  } else if (rotarPlano > 160 && rotarPlano <= 200 ) {
-  
-      ctx.translate(-mainMeasure/20-mainMeasure/40*rotarPlano/100,mainMeasure/40+mainMeasure/40*rotarPlano/100);
-  
-  } else if (rotarPlano > 200 && rotarPlano <= 280 ) {
-  
-      ctx.translate(-mainMeasure/10+mainMeasure/40*rotarPlano/100,mainMeasure/40+mainMeasure/40*rotarPlano/100);
-  
-  } else {
-  
-      ctx.translate(-mainMeasure/7+mainMeasure/40*rotarPlano/100,+mainMeasure/7-mainMeasure/40*rotarPlano/100);
-  
-  }
-  
+  ctx.translate(-mainMeasure/12,mainMeasure/12);
   
   ctx.rotate(-rotarPlano*Math.PI/180);
   ctx.rotate(90*Math.PI/180);
@@ -283,7 +226,8 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   ctx.restore();
   
   // nomenclatura anguloH End
-  
+
+
   var ctx2 = c.getContext("2d");
 
   ctx2.lineWidth = linesWidth;
