@@ -21,7 +21,7 @@ $(document).ready(function() {
 });
 
 var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, colorLetras, anchoCanvas, altoCanvas) {
-  console.log('drawCanvas');
+  // console.log('drawCanvas');
 
   colorRectas === undefined ? colorRectas = '#00c7ca' : colorRectas;
   colorArcos === undefined ?  colorArcos = '#00c7ca' : colorRectas;
@@ -34,12 +34,12 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
 
   anguloJ = parseInt(anguloJ);
   
-  console.log('colorRectas = ' + colorRectas);
-  console.log('valorColorRectas = ' + valorColorRectas);
-  console.log('colorArcos = ' + colorArcos);
-  console.log('valorColorArcos = ' + valorColorArcos);
-  console.log('colorLetras = ' + colorLetras);
-  console.log('valorColorLetras = ' + valorColorLetras);
+  // console.log('colorRectas = ' + colorRectas);
+  // console.log('valorColorRectas = ' + valorColorRectas);
+  // console.log('colorArcos = ' + colorArcos);
+  // console.log('valorColorArcos = ' + valorColorArcos);
+  // console.log('colorLetras = ' + colorLetras);
+  // console.log('valorColorLetras = ' + valorColorLetras);
   
   
   var c = document.querySelector("#oneLineTwoStrokes");
@@ -67,9 +67,11 @@ var unaRectaDosRayos = function(rotarPlano, anguloJ, colorRectas, colorArcos, co
   ctx.rotate(rotarPlano*Math.PI/180);
   // Excersise variables
   
-  var linesWidth = 2,
+  var linesWidth,
       fontSizeVariables,
       arcsRadius;
+
+  linesWidth = 2
   
   arcsRadius = mainMeasure/7;
   
