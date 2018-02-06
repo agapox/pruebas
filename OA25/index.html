@@ -27,7 +27,7 @@
 		}
   </style>
   <body>
-    <div id="datos-graficos" class="container-fluid">
+    <div id="datos-graficos" class="datos-r1 container-fluid">
       <div class="row">
         <div class="col-md-5">
           <div class="form-group row">
@@ -68,18 +68,74 @@
               <input type="text" id="datos-data-ejeY" class="form-control" placeholder="$d,$e,$f ó perros,gatos,ratones">
             </div>
           </div>
-          <div class="form-group">
-            <button type="button" id="addDatosGraf" class="btn btn-success" class="form-control">
-              Generar
-            </button>
-          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <h4 class="text-center">Estilos</h4>
+            </div>
+            <div class="col-sm-12">
+              <form class="row">
+                <div class="col-sm-6">
+                  <div class="form-inline">
+                    <h5 style="margin-top: 20px">Dimensiones:</h5>
+                    <label style="margin-left: 20px">Ancho (px)</label>
+                    <input id="datos-ancho" type="number" placeholder="Ancho" class="form-control" value="240" style="width:80px; margin-right:10px;">
+                    <label>Alto (px)</label>
+                    <input id="datos-alto" type="number" placeholder="Alto" class="form-control" value="240" style="width:80px; margin-right:10px;">
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-inline">
+                    <h5 style="margin-top: 30px">Borde externo:</h5>
+                    <label>Grosor (px)</label>
+                    <input id="datos-border-width" type="number" placeholder="Grosor" value="3" class="form-control" style="width:80px; margin-right:10px;">
+                    <label style="margin-left: 20px">Radio (px)</label>
+                    <input id="datos-border-radius" type="number" placeholder="Radio" value="20" class="form-control" style="width:80px; margin-right:10px;">				
+                  </div>
+                </div>
+                <div class="col-sm-12">
+                  <div class="form-inline">
+                    <h5 style="margin-top: 30px">Colores:</h5>
+                    <label>Fondo</label>
+                    <input id="datos-background" type="text" class="form-control" value="#ffffff" style="width: 90px; margin: 0 15px 0 0;">
+                    <label>Eje</label>
+                    <input id="datos-axis" type="text" class="form-control" value="#BFF9FA" style="width: 90px; margin: 0 15px 0 0;">
+                    <label>Textos</label>
+                    <input id="datos-font" type="text" class="form-control" value="#00c7ca" style="width: 90px; margin: 0 15px 0 0;">
+                    <label>L&iacute;neas Gu&iacute;as</label>
+                    <input id="datos-guias" type="text" class="form-control" value="#00c7ca" style="width: 90px; margin: 0 15px 0 0;">
+                    <br /><br />
+                    <label for="">Color Borde</label>
+                    <input id="datos-color-bordes" placeholder="#ffffff" type="text" class="form-control" name="" style="width: 90px; margin: 0 15px 0 0;">
+                    <label for="">Color barras</label>
+                    <input id="datos-color-barras" placeholder="#ffffff,#dedede,..." type="text" class="form-control" name="" >
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 30px">Tipo de escala:</h5>
+                  <select id="planocartesiano-selector" class="form-control" style="width:250px;">
+                    <option value="0" selected="" disabled="">Seleccionar escala</option>
+                    <option value="1">Autom&aacute;tica</option>
+                    <option value="2">Personalizada</option>
+                  </select>
+                  <h5 style="margin-top: 30px">Escala Personalizada</h5>
+                  <label for="">Indique rango escala</label>
+                  <input id="" placeholder="5,10,20" type="text" class="form-control" name="" style="width: 90px; margin: 0 15px 0 0;">
+                </div>
+                <div class="form-inline">
+                  <div class="col-sm-12">
+                    <div class="form-inline" style="margin-top: 30px">
+                      <a class="btn btn-success" id="btnGenerarDatos">Agregar Gr&aacute;fica Datos</a>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
         </div>
         <div
-        id="graph-container"
+        id="htmlDatos445"
         class="col-sm-12 col-md-7 text-center la-clase la-glosa"
         
         >
-          <canvas id="oneLineTwoStrokes"></canvas>
         </div>
       </div>
     </div>
