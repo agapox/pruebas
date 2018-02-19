@@ -27,11 +27,47 @@
   </style>
   <body>
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-5">
-          <div class="form-group">
-            <label>Valor Inicial</label>
-            <input type="text" name="vlrinicial" class="form-control">
+      <div class="row rectNumDec">
+        <div class="col-md-6">
+          <div class="form-inline">
+            <h4>Datos</h4>
+            <label>Valor Entero</label>
+            <input id="enteroRectNumDec" style="width: 70px; margin:0 20px 0 5px;" placeholder="$a" type="text" class="form-control">
+            <label>Valor Décimo</label>
+            <input id="decimoRectNumDec" style="width: 70px; margin:0 20px 0 5px;" placeholder="$b" type="text" class="form-control">
+            <label>Valor Centésimo</label>
+            <input id="centesimoRectNumDec" style="width: 70px; margin:0 20px 0 5px;" placeholder="$c" type="text" class="form-control">
+          </div>
+          <br>
+          <div class="form-inline">
+            <h4>Diseño</h4>
+            <label>Color Rectas</label>
+            <input id="colorRectNumDec" style="width: 90px; margin:0 20px 0 5px;" value="#E58433" type="text" class="form-control">
+            <br><br>
+            <label>Arcos Principales</label>
+            <select style="width: 70px; margin:0 20px 0 5px;" id="arcPrincRectNumDec" class="form-control">
+              <option value="0">No</option>
+              <option value="1">Si</option>
+            </select>
+            <label>Color Arcos y puntos</label>
+            <input id="colorArcRectNumDec" style="width: 90px; margin:0 20px 0 5px;" value="#8B1013" type="text" class="form-control">
+            <br><br>
+            <label>Lupa</label>
+            <select style="width: 80px; margin:0 20px 0 5px;" id="conLupaRectNumDec" class="form-control">
+              <option value="0">No</option>
+              <option value="1">Si</option>
+            </select>
+            <label>Mini Recta</label>
+            <select style="width: 80px; margin:0 20px 0 5px;" id="miniRectNumDec" class="form-control">
+              <option value="0">No</option>
+              <option value="1">Si</option>
+            </select>
+            <label>Arcos Secundarios</label>
+            <select style="width: 70px; margin:0 20px 0 5px;" id="arcSecRectNumDec" class="form-control">
+              <option value="0">No</option>
+              <option value="1">Si</option>
+            </select>
+            <br><br>
           </div>
           <div class="form-group">
             <button type="button" class="btn btn-success btn-addrectanumerica" class="form-control">
@@ -41,10 +77,10 @@
         </div>
         <div
         id="graph-container"
-        class="col-sm-12 col-md-7 text-center la-clase la-glosa"
+        class="col-sm-12 col-md-6 text-center la-clase la-glosa"
         
         >
-          <canvas id="oneLineTwoStrokes"></canvas>
+          <canvas id="canvas"></canvas>
         </div>
       </div>
     </div>
@@ -55,6 +91,6 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="./../bootstrap/bootstrap.min.js"></script>
     <!-- Functional JS -->
-    <script src="rectaNumDec.js"></script>
+    <script src="rectaNumDec1.js"></script>
   </body>
 </html>

@@ -13,13 +13,13 @@ $(document).ready(function() {
 });
 
 var rectaNumDec = (elPadre) => {
-  let c = $('#oneLineTwoStrokes')[0];
+  let c = $('#canvas')[0];
   let ctx = c.getContext("2d");
   
   let anchoCanvas = $(elPadre).width()*0.95;
   let altoCanvas = $(elPadre).width() / 3;
-  $('#oneLineTwoStrokes').width(anchoCanvas);
-  $('#oneLineTwoStrokes').height(altoCanvas);
+  $('#canvas').width(anchoCanvas);
+  $('#canvas').height(altoCanvas);
   
   c.width = anchoCanvas;
   c.height = altoCanvas;
@@ -33,10 +33,12 @@ var rectaNumDec = (elPadre) => {
   let centerH = altoCanvas/5;
   ctx.translate(0,centerH);
 
+  let recNumCont = $('.rectNumDec')
+
   // Variables modificables desde los inputs
   let varObj = {
-    puntoUnit: Math.floor(Math.random()*(10)), // (input) Número decimal ingresado
-    puntoDec: Math.floor(Math.random()*(9 - 1 + 1)) + 1,  // (input) Número centecimal ingresado
+    puntoUnit: parseInt(recNumCont.find('#decimoRectNumDec').val()), // (input) Número decimal ingresado
+    puntoDec: parseInt(recNumCont.find('#centesimoRectNumDec').val()),  // (input) Número centecimal ingresado
     anchoCanvas: anchoCanvas,
     altoCanvas, altoCanvas,
     coordPrincipales: true, // (input) determina si se grafican las coordenadas principales
@@ -45,8 +47,16 @@ var rectaNumDec = (elPadre) => {
     anchoFlechas: anchoCanvas/150, // (auto) ancho de las flechas del eje
     largoFlechas: anchoCanvas/40, // (auto) largo de las flechas del eje
     anchoCoord: anchoCanvas/300, // (auto) ancho del indicador de las coordenadas
-    numInicial: parseInt($('input[name=vlrinicial]').val()), // $('input').attr('name', 'vlrinicial') número inicial de la escala del ejercicio
+    numInicial: parseInt(recNumCont.find('#enteroRectNumDec').val()), // $('input').attr('name', 'vlrinicial') número inicial de la escala del ejercicio
     numDivisiones: 10, // (input) numero de divisiones decimales
+    // inputs selects
+    conArcos: parseInt(recNumCont.find('#arcPrincRectNumDec').val()),
+    conArcosSec: parseInt(recNumCont.find('#arcSecRectNumDec').val()),
+    conLupa: parseInt(recNumCont.find('#conLupaRectNumDec').val()),
+    miniRecta: parseInt(recNumCont.find('#miniRectNumDec').val()),
+    // Colores
+    colorRectas : recNumCont.find('#colorRectNumDec').val(),
+    colorArcos : recNumCont.find('#colorArcRectNumDec').val(),
     // Decimales
     anchoCoordDec: anchoCanvas/600, // (auto) ancho del indicador de las coordenadas
     numDivDec: 9, // (input) numero de divisiones centecimales
@@ -75,7 +85,7 @@ var rectaNumDec = (elPadre) => {
   varObj.finDistDec = varObj.ptoInicialEjeX + varObj.anchoCanvas*5/100 + (varObj.ptoFinalEjeX - varObj.ptoInicialEjeX) / (varObj.numDivDec*varObj.numDivisiones); // (auto) La distancia desde el inicio del eje
   varObj.distanciDivDec = (varObj.finDist - varObj.iniDist) / (varObj.numDivDec*varObj.numDivisiones); // (auto) distancia de las divisiones entre entre coordenadas
   
-  ctx.strokeStyle = '#E58433';
+  ctx.strokeStyle = varObj.colorRectas;
 
   let coordPrinciapl = dibEjePrincipal(varObj)
   
@@ -101,24 +111,27 @@ var rectaNumDec = (elPadre) => {
     let largoFlechas = varObj.largoFlechas*0.8;
     let anchoFlechas = varObj.anchoFlechas*0.8;
 
-    ejeX(centroVertical, anchoLineaEjeX, ptoInicial, ptoFinal);
+    if (varObj.miniRecta == 1) {
+      ejeX(centroVertical, anchoLineaEjeX, ptoInicial, ptoFinal);
+      flechasEjes(centroVertical, ptoInicial, ptoFinal, largoFlechas*2, anchoFlechas*2)
+
+    }
     
-    flechasEjes(centroVertical, ptoInicial, ptoFinal, largoFlechas*2, anchoFlechas*2)
 
     let ptosEjeLupa = generarMicroCoord(centroVertical, ptoInicial, ptoFinal, 1, 10, varObj.puntoDec);
 
-
-
     // Respuesta glosa, flechas encima de las coordenadas principales
-    let ejeGrande = {
-      centroHorizontal: varObj.iniDist + varObj.distanciDivisiones/2,
-      centroVertical: 0,
-      puntoParada: varObj.puntoUnit,
-      distDivisiones: varObj.distanciDivisiones,
-      distEjeY: varObj.largoCoord,
-      tamanoEje: 'grande'
+    if (varObj.conArcos == 1) {
+      let ejeGrande = {
+        centroHorizontal: varObj.iniDist + varObj.distanciDivisiones/2,
+        centroVertical: 0,
+        puntoParada: varObj.puntoUnit,
+        distDivisiones: varObj.distanciDivisiones,
+        distEjeY: varObj.largoCoord,
+        tamanoEje: 'grande'
+      }
+      respGlosaGraf(ejeGrande);
     }
-    respGlosaGraf(ejeGrande);
 
     return {
       ptosEjeLupa
@@ -176,10 +189,10 @@ var rectaNumDec = (elPadre) => {
   function respGlosaGraf(eje) {
     ctx.save();
 
-    if ($(elPadre).hasClass('la-glosa') && eje.puntoParada != 0) {
+    if (eje.puntoParada != 0) {
 
       ctx.translate(eje.centroHorizontal,eje.centroVertical)
-      ctx.strokeStyle = '#8B1013';
+      ctx.strokeStyle = varObj.colorArcos;
       for (let i = 0; i < eje.puntoParada; i++) {
         eje.tamanoEje == 'grande' ? ctx.lineWidth = '2' : ctx.lineWidth = '1.5'
         ctx.lineCap = 'round'; // "miter", "bevel", "round"
@@ -197,13 +210,15 @@ var rectaNumDec = (elPadre) => {
           distVertFlecha = 0;
           distX = [-9,-2];
           distY = [-2,-10];
+        
         }
+        
         flechaIndUnt.arc(eje.distDivisiones*[i],distVertFlecha,eje.distDivisiones*0.6, (225)*Math.PI/180,(320)*Math.PI/180);
         flechaIndUnt.moveTo(distX[0] + eje.distDivisiones/2 + eje.distDivisiones*i,distY[0] - eje.distEjeY*0.65);
         flechaIndUnt.lineTo(+ eje.distDivisiones/2 + eje.distDivisiones*i,- eje.distEjeY*0.65);
         flechaIndUnt.lineTo(distX[1] + eje.distDivisiones/2 + eje.distDivisiones*i,distY[1] - eje.distEjeY*0.65);
         ctx.closePath(flechaIndUnt);
-        ctx.stroke(flechaIndUnt); 
+        ctx.stroke(flechaIndUnt);         
       }
     }
     ctx.restore();
@@ -212,6 +227,7 @@ var rectaNumDec = (elPadre) => {
 
   //generarMicroCoord(centroVertical, ptoInicial, ptoFinal, divUnit, divDec)
   function generarMicroCoord(centroVertical, ejePtoInicial, ejePtoFinal, divUnit, divDec, ptoDec) {
+    
     ctx.save();
     let largoEje = ejePtoFinal - ejePtoInicial;
     let margenEje = largoEje*0.15;
@@ -230,7 +246,9 @@ var rectaNumDec = (elPadre) => {
       distEjeY: varObj.largoCoord,
       tamañoEje: ''
     }
-    respGlosaGraf(ejePeq);
+    if (varObj.conArcosSec == 1) {
+      respGlosaGraf(ejePeq);
+    }
     
     if (varObj.coordPrincipales) {
       for (let i = 0; i <= divUnit; i++) {
@@ -240,8 +258,10 @@ var rectaNumDec = (elPadre) => {
         iniXCoord.moveTo(ptoInicial + distDivUnit*[i],centroVertical+varObj.largoCoord*0.8);
         iniXCoord.lineTo(ptoInicial + distDivUnit*[i],centroVertical-varObj.largoCoord*0.8);
         ctx.closePath(iniXCoord);
-        ctx.stroke(iniXCoord);
-        coordNom()
+        if (varObj.miniRecta == 1) {
+          ctx.stroke(iniXCoord);
+          coordNom()
+        }
         function coordNom () {
           ctx.save()
           ctx.font = varObj.largoCoord*0.7 +"px Arial";
@@ -266,6 +286,7 @@ var rectaNumDec = (elPadre) => {
           ctx.save()
         }
       }
+      //coordenadas minirecta
       for (let i = 0; i <= divDec; i++) {
         let iniXCoord = new Path2D();
         ctx.beginPath(iniXCoord);
@@ -278,11 +299,15 @@ var rectaNumDec = (elPadre) => {
           iniXCoord.lineTo(ptoInicial + distDivDec*[i],centroVertical-varObj.largoCoord*0.5);
         }
         ctx.closePath(iniXCoord);
-        ctx.stroke(iniXCoord);
+        if (varObj.miniRecta == 1) {
+          ctx.stroke(iniXCoord);
+        }
         if(i === ptoDec) {
-          ctx.fillStyle = "#8B1013";
+          ctx.fillStyle = varObj.colorArcos;
           ctx.arc(ptoInicial + distDivDec*[i],centroVertical,varObj.largoCoordDec/2,0,Math.PI*2);
-          ctx.fill()
+          if (varObj.miniRecta == 1) {
+            ctx.fill()
+          }
         }
       }
     }
@@ -313,7 +338,7 @@ var rectaNumDec = (elPadre) => {
         function coordNom () {
           ctx.save()
           ctx.font = varObj.largoCoord*0.6 +"px Arial";
-          ctx.fillStyle = '#8B1013'
+          ctx.fillStyle = varObj.colorArcos
           if (i === 0) {
             ctx.fillText(varObj.numInicial,varObj.iniDist - varObj.iniDist*0.15,varObj.largoCoord*1.2);
           } else if (i === varObj.numDivisiones){
@@ -337,6 +362,7 @@ var rectaNumDec = (elPadre) => {
             let iniXCoordDec = new Path2D();
             ctx.beginPath(iniXCoordDec);
             ctx.lineWidth = varObj.anchoCoordDec;
+            ctx.fillStyle = varObj.colorArcos;
             if (j === (varObj.numDivDec-2)/2) {
               let largoDec = varObj.largoCoordDec/2*1.2;
               iniXCoordDec.moveTo(varObj.iniDistDec + varObj.distanciDivisiones*[i] + varObj.distanciDivDec*[j],largoDec);
@@ -348,7 +374,7 @@ var rectaNumDec = (elPadre) => {
             ctx.closePath(iniXCoordDec);
             ctx.stroke(iniXCoordDec);
             if (varObj.puntoUnit != '' && varObj.puntoUnit === i && varObj.puntoDec != '' && varObj.puntoDec === j+1) {
-              ctx.fillStyle = "#8B1013";
+              ctx.fillStyle = varObj.colorArcos;
               ctx.arc(varObj.iniDistDec + varObj.distanciDivisiones*[i] + varObj.distanciDivDec*[j],0,varObj.largoCoordDec/4,0,Math.PI*2)
               ctx.fill()
               coordEjePrincipal = {
@@ -362,7 +388,7 @@ var rectaNumDec = (elPadre) => {
                 }
               }
             } else if (varObj.puntoUnit === 0 && varObj.puntoUnit === i && varObj.puntoDec != '' && varObj.puntoDec === j+1) {
-              ctx.fillStyle = "#8B1013";
+              ctx.fillStyle = varObj.colorArcos;
               ctx.arc(varObj.iniDistDec + varObj.distanciDivisiones*[i] + varObj.distanciDivDec*[j],0,varObj.largoCoordDec/4,0,Math.PI*2)
               ctx.fill()
               coordEjePrincipal = {
@@ -386,12 +412,8 @@ var rectaNumDec = (elPadre) => {
     ctx.save();
   } // End generarCoord()
 
-  let puntosLupa = dibEjeLupa(varObj);
-
   let puntosCoordPrin = coordPrinciapl;
-
-  //console.log(puntosCoordPrin.coordEjePrinIn)
-  
+  let puntosLupa = dibEjeLupa(varObj);
   lineasRefLupa(varObj.puntoUnit, puntosLupa.ptosEjeLupa.ejeLupaPtoIni, puntosLupa.ptosEjeLupa.ejeLupaPtoFin, puntosCoordPrin.coordEjePrinIn, puntosCoordPrin.coordEjePrinFin);
   
   function lineasRefLupa(ptoInicial, ptoInicialLupa, ptoFinalLupa, ptoIniPrin, ptoFinPrin ) {
@@ -399,18 +421,22 @@ var rectaNumDec = (elPadre) => {
     ctx.strokeStyle = '#F2C93B'
     ctx.moveTo(ptoInicialLupa.x,ptoInicialLupa.y)
     ctx.lineTo(ptoIniPrin.x,ptoIniPrin.y)
-    ctx.stroke()
+    //ctx.stroke()
     ctx.moveTo(ptoFinalLupa.x,ptoFinalLupa.y)
     ctx.lineTo(ptoFinPrin.x,ptoFinPrin.y)
-    ctx.stroke()
+    if (varObj.miniRecta == 1) {
+      ctx.stroke()
+    }
     ctx.restore();
     ctx.save();
   }
 
-  let centroLup = varObj.distanciDivisiones * varObj.puntoUnit + varObj.distanciDivisiones * 0.7;
-  let img1 = new Image();
-  img1.src = 'https://desarrolloadaptatin.blob.core.windows.net/imagenesprogramacion/Ordenar/lupa.svg';
-  img1.onload = function() { 
-    ctx.drawImage(img1,centroLup,-varObj.altoCanvas/5,varObj.distanciDivisiones*1.9*1.48,varObj.distanciDivisiones*1.9)
+  if (varObj.conLupa == 1) {
+    let centroLup = varObj.distanciDivisiones * varObj.puntoUnit + varObj.distanciDivisiones * 0.7;
+    let img1 = new Image();
+    img1.src = 'https://desarrolloadaptatin.blob.core.windows.net/imagenesprogramacion/Ordenar/lupa.svg';
+    img1.onload = function() { 
+      ctx.drawImage(img1,centroLup,-varObj.altoCanvas/5,varObj.distanciDivisiones*1.9*1.48,varObj.distanciDivisiones*1.9)
+    }
   }
 } // End rectaNumDec()

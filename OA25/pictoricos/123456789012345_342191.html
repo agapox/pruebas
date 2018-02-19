@@ -1,0 +1,101 @@
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+<link rel='stylesheet' href='../../../cssGeneral.css'>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<meta charset='UTF-8'>
+<link rel='stylesheet' href='../../../../../fontEjercicios/fontsLarke.css'>
+<style>
+    #spanFeedBack {
+        font-size: 150% !important;
+    }
+</style>
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+<script>
+    $(document).ready(function() {
+        $('div').removeAttr('onclick');
+        $('table').removeAttr('onclick');
+        $('#imagenBotonRespuesta').removeAttr('onclick');
+        $('#imagenBotonRespuesta').attr('onclick', 'responder();enviar();');
+    });
+</script>
+<div id="divCreacionHtml" style=" position: relative; width:980px;height:551px;border-style: groove; top: 5px; left: 10px; float: left;z-index:9;background-color:#ECECEC">
+    <div class="bordeDiv" onclick="selectDiv(this);" id="div1" style="width:100%;height:5%;">
+        <div class="divGeneralFeed" id="divGeneralFeed" style="display:none;" posicion="arriba">
+            <div class="div1Feed"><img class="imgFeed" src="https://desarrolloadaptatin.blob.core.windows.net/feedbacksimg/PataFeedBack_00001.png">
+            </div>
+            <div class="bubble" id="bubble"><span class="spanFeedBack" id="spanFeedBack"></span>
+                <button type="button" class="btnFeedBackCerrar" onclick="cerrarFeed();"><span class="glyphicon glyphicon-remove-circle" style="font-size:xx-large;" aria-hidden="true"></span>
+                </button>
+                <div class="feedFlecha" id="feedFlecha"></div>
+            </div>
+        </div>
+    </div>
+    <div class="bordeDivMarcado" onclick="selectDiv(this);" id="div2" style="width:100%;height:95%;float:left;">
+        <div id="htmlDatos904" 
+        alto="400" 
+        ancho="720" 
+        bordegrosor="3" 
+        borderadio="20" 
+        fondo="#ffffff" 
+        bordecolor="#007577" 
+        textocolor="#007577" 
+        orientacion="horizontal" 
+        titulo="Título" 
+        titulotamano="22" 
+        ejegrosor="3" 
+        ejecolor="#007597" 
+        tituloejex="Eje X" 
+        tituloejey="Eje Y" 
+        valoresx="25, 10, 15, 5" 
+        valoresy="Juan, Lucas, Pamela, Macarena" 
+        colores="#007577" 
+        escala="auto" 
+        proyectar="true" 
+        limitar="true" 
+        limitval="5,0,15,5"
+        lineagrosor="2" 
+        lineacolor="#00c7ca" 
+        lineavalor="0" 
+        leyenda="true"
+        leyendaimg="https://desarrolloadaptatin.blob.core.windows.net/imagenesprogramacion/Eje_3/OA_18/IE_02/F660_flecha_up.svg"
+        leyendavalor="5"
+        class="datos-r1"
+        ><span class="txtRef">Gráfico Datos</span>
+        </div>
+    </div>
+    <div style="position: absolute;right: 0;bottom: 0;left: 0;padding: 1%;background-color: #F9EDC7;text-align: center;z-index:9999;"><img align="right" id="imagenBotonRespuesta" src="https://desarrolloadaptatin.blob.core.windows.net/iconosimg/botones/Algebra_Terminar" onclick="responder();envio();movButton(this);" style="cursor:pointer;z-index:999;">
+    </div>
+</div>
+<script>
+    var glosa = "4";
+    var respGeneral = 0;
+    var rspMalas = 0;
+    var rspSinFeedBack = 0;
+    var datos = [];
+    var RespNeg = 0;
+    var fecha = new Date();
+    var fechaEntrada = fecha.toLocaleTimeString();
+    var ieGeneral = 143;
+    var nivelF = "";
+    var ejeF = "";
+    var oaF = "";
+    var errFre = "";
+    var idEjercicio = 123456789012345;
+
+    function responder() {
+        if (RespNeg != 0) {
+            rspMalas++;
+            else {
+                $("#divGeneralFeed").show();
+                errFre = "0";
+                $("#spanFeedBack").html("<p>7</p>");
+            }
+        } else {
+            $("#divGeneralFeed").show();
+            $("#spanFeedBack").html("Respuesta Correcta");
+        }
+        respGeneral = 0;
+        RespNeg = 0;
+        rspSinFeedBack = 0;
+    }
+</script>
+<script src='datosPic.js'></script>
