@@ -93,6 +93,7 @@ state.container.position = {
   y1: state.canvas.position.y1 - state.container.padding.bottom
 }
 state.chart = {
+  orientation: 'vertical',
   style: {
     border: {
       color: '',
@@ -118,7 +119,15 @@ state.chart = {
     src: 'https://vignette.wikia.nocookie.net/mario-fanon/images/4/48/Paper_mario.png/revision/latest/scale-to-width-down/640?cb=20131117112706&path-prefix=es',
     caption: {
       value: '5 papas',
-      img: {}
+      img: {},
+      font: {
+        size: '22',
+        color: '#262626',
+        family: 'Arial',
+        alignX: 'right',
+        alignY: 'middle',
+        weight: 'bold'
+      }
     }
   },
   values: [2,5,7,1,4],
@@ -129,9 +138,10 @@ state.chart = {
       color: 'red',
       width: 4
     },
+    margin: 30,
     color: 'rgba(21, 216, 10,0.8)',
     highlight: {
-      color: 'rgba(99, 99, 99, 0.5)'
+      color: 'rgba(0, 0, 10,0.4)'
     },
     padding: 1 // {0: grande, 1: mediana, 2: pequeña},
   }
@@ -148,10 +158,9 @@ state.chart.style.innerPadding.y = (state.chart.position.y1 - state.chart.positi
 
 state.scale.max = state.scale.max == 0 ? Math.max(...state.chart.values) : state.scale.max
 
-state.chart.image.height = (state.chart.position.y1 - state.chart.position.y0)*0.4
+state.chart.image.height = (state.chart.position.y1 - state.chart.position.y0)*0.3
 
-console.log(state.scale.max)
-//drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
+drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
 drawRect(state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
 drawRect(state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
 // drawRect(state.canvas.position)
@@ -259,87 +268,155 @@ function initEx(state) {
 
 function datosPictoric(state) {
   insTitulos(state)
+  insValoresEjes(state)
   insChart(state)
-  insPic(state)
   insLeyenda(state)
+  insImages(state)
 }
 function datosSimb(state) {
   insTitulos(state)
+  insValoresEjes(state)
   insChart(state)
   guidelines(state)
   insBarras(state)
-  insEtqDatos(state)
+  // insEtqDatos(state)
 }
 
 
 // chart functions Begin
+  // insTitulos Begin
+    function insTitulos(state) {
+      const { ctx, chart, titles } = state
+      ctx.save()
 
-  function insTitulos(state) {
-    const { ctx } = state
-    ctx.save()
+      let titleHorizontal = 'titleY'
+      let titleVertical = 'titleX'
+      insMainTitle(state)
+      if (chart.orientation != 'horizontal') {
+        titleHorizontal = 'titleX'
+        titleVertical = 'titleY'
+      }
 
-    insMainTitle(state)
-    insTitleX(state)
-    insTitleY(state)
+      insTitleX(state, titleHorizontal)
+      insTitleY(state, titleVertical)
 
-    ctx.restore()
-    ctx.save()
-  }
-  // Main Title
-  function insMainTitle(state) {
-    const { ctx, chart, canvas } = state
-    const { mainTitle, titleX, titleY } = state.titles
-    ctx.save()
+      ctx.restore()
+      ctx.save()
+    }
+    // Main Title
+    function insMainTitle(state) {
+      const { ctx, chart, canvas } = state
+      const { mainTitle, titleX, titleY } = state.titles
+      ctx.save()
 
-    let x = (canvas.position.x1)/2 + mainTitle.move.moveX + canvas.position.x0
-    let y = 0 + canvas.position.y0 + mainTitle.move.moveY
-    ctx.translate(x,y)
-    ctx.fillStyle = mainTitle.color
-    ctx.textAlign = mainTitle.alignX
-    ctx.textBaseline = mainTitle.alignY
-    ctx.font = mainTitle.font.weight + ' ' + mainTitle.font.size + 'px ' + mainTitle.font.family
-    ctx.fillText(mainTitle.title, 0, 0)
+      let x = (canvas.position.x1)/2 + mainTitle.move.moveX + canvas.position.x0
+      let y = 0 + canvas.position.y0 + mainTitle.move.moveY
+      ctx.translate(x,y)
+      ctx.fillStyle = mainTitle.color
+      ctx.textAlign = mainTitle.alignX
+      ctx.textBaseline = mainTitle.alignY
+      ctx.font = mainTitle.font.weight + ' ' + mainTitle.font.size + 'px ' + mainTitle.font.family
+      ctx.fillText(mainTitle.title, 0, 0)
 
-    ctx.restore()
-    ctx.save()
-  }
-  // Title X
-  function insTitleX(state) {
-    const { ctx, chart, canvas } = state
-    const { mainTitle, titleX, titleY } = state.titles
-    ctx.save()
+      ctx.restore()
+      ctx.save()
+    }
+    // Title X
+    function insTitleX(state, title) {
+      const { ctx, chart, canvas } = state
+      const { mainTitle, titleX, titleY } = state.titles
+      ctx.save()
 
-    let x = (chart.position.x1 - chart.position.x0)/2 + titleX.move.moveX + chart.position.x0
-    let y = 0 + canvas.position.y1 - titleX.move.moveY
-    ctx.translate(x,y)
-    ctx.fillStyle = titleX.color
-    ctx.textAlign = titleX.alignX
-    ctx.textBaseline = titleX.alignY
-    ctx.font = titleX.font.weight + ' ' + titleX.font.size + 'px ' + titleX.font.family
-    ctx.fillText(titleX.title, 0, 0)
+      title = (title == 'titleX') ? titleX : titleY
 
-    ctx.restore()
-    ctx.save()
-  }
-  // Title Y
-  function insTitleY(state) {
-    const { ctx, chart, canvas } = state
-    const { mainTitle, titleX, titleY } = state.titles
-    ctx.save()
+      let x = (chart.position.x1 - chart.position.x0)/2 + title.move.moveX + chart.position.x0
+      let y = 0 + canvas.position.y1 - title.move.moveY
+      ctx.translate(x,y)
+      ctx.fillStyle = title.color
+      ctx.textAlign = titleX.alignX
+      ctx.textBaseline = titleX.alignY
+      ctx.font = title.font.weight + ' ' + title.font.size + 'px ' + title.font.family
+      ctx.fillText(title.title, 0, 0)
 
-    let x = canvas.position.x0 + titleY.move.moveX
-    let y = 0 + (chart.position.y1 - chart.position.y0)/2 + chart.position.y0 - titleY.move.moveY
-    ctx.translate(x,y)
-    ctx.fillStyle = titleY.color
-    ctx.rotate(-90*Math.PI/180)
-    ctx.textAlign = titleY.alignX
-    ctx.textBaseline = titleY.alignY
-    ctx.font = titleY.font.weight + ' ' + titleY.font.size + 'px ' + titleY.font.family
-    ctx.fillText(titleY.title, 0, 0)
+      ctx.restore()
+      ctx.save()
+    }
+    // Title Y
+    function insTitleY(state, title) {
+      const { ctx, chart, canvas } = state
+      const { mainTitle, titleX, titleY } = state.titles
+      ctx.save()
 
-    ctx.restore()
-    ctx.save()
-  }
+      title = (title == 'titleX') ? titleX : titleY
+
+      let x = canvas.position.x0 + titleY.move.moveX
+      let y = 0 + (chart.position.y1 - chart.position.y0)/2 + chart.position.y0 - titleY.move.moveY
+      ctx.translate(x,y)
+      ctx.fillStyle = title.color
+      ctx.rotate(-90*Math.PI/180)
+      ctx.textAlign = titleY.alignX
+      ctx.textBaseline = titleY.alignY
+      ctx.font = title.font.weight + ' ' + title.font.size + 'px ' + title.font.family
+      ctx.fillText(title.title, 0, 0)
+
+      ctx.restore()
+      ctx.save()
+    }
+  // insTitulos End
+  // Insertar Valores en los ejes Begin
+    function insValoresEjes(state) {
+      const { chart } = state
+      const { tags, values } = chart
+      let valuesAxisX = values
+      let valuesAxisY = tags
+      if (chart.orientation == 'vertical') {
+        valuesAxisX = tags
+        valuesAxisY = values
+      }
+      insValuesX(state, valuesAxisX)
+      insValuesY(state, valuesAxisY)
+    }
+    function insValuesX(state, valuesTags) {
+      const { ctx, chart, container, canvas } = state
+      const { tags, values, position, axis } = chart
+      const { x0, x1, y0, y1 } = position
+      let len = valuesTags.length
+      let width = (x1 - x0 - chart.style.innerPadding.x*2)
+      let barMargin = chart.bars.margin
+      let barPadding = barMargin/2
+      let barCont = (width - barMargin*len - barPadding*len)/len
+      let vardx = barCont + barMargin + barPadding
+      let dxx = barCont - (chart.bars.border.width + barMargin +barPadding )/2
+      let x = x0 + axis.width + chart.style.padding.left + chart.bars.border.width
+      for (let i = 0; i < len; i++) {
+        let dx = vardx*i
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'top'
+        ctx.fillText(valuesTags[i], x + dx + dxx, container.position.y1 - (container.position.y1 - chart.position.y1)/2)
+      }
+    }
+    function insValuesY(state, valuesTags) {
+      console.log('insValuesY')
+      const { ctx, chart, container, canvas } = state
+      const { tags, values, position, axis } = chart
+
+      let len = valuesTags.length
+      let height = chart.position.y1 - chart.position.y0
+      let itemHeight = height/Math.max(...chart.values)
+
+      x0 = container.position.x0 + (chart.position.x0 - container.position.x0)/2
+      y0 = chart.position.y1 + chart.style.innerPadding.x
+      y = itemHeight
+      console.log(chart)
+      console.log(height/Math.max(...chart.values))
+
+      for (let i = 0; i < len; i++) {
+        ctx.fillText(valuesTags[i], x0,y0 - y*chart.values[i])
+        //ctx.arc(x0,y0 - y*chart.values[i],5,0,1000)
+        //ctx.fill()
+      }
+    }
+  // Insertar Valores en los ejes End
   function insChart(state) {
     const { ctx } = state
     const { x0, y0, x1, y1 } = state.chart.position
@@ -409,73 +486,27 @@ function datosSimb(state) {
     if(scale.width > 0 && scale.value > 0) {
       ctx.lineWidth = scale.width
       ctx.strokeStyle = scale.color
-      let height = y1 - y0 - chart.style.innerPadding.y
-      let spaceScale = (height/scale.max)*scale.value
-      for (let i = scale.min; i <= scale.max; i+=scale.value) {
-        ctx.beginPath()
-        ctx.moveTo(x0 + chart.axis.width/2, y1 - spaceScale*i)
-        ctx.lineTo(x1 - (x1-x0)*0.02, y1 - spaceScale*i)
-        ctx.stroke()
-        ctx.closePath()
-      }
-    }
-    ctx.restore()
-    ctx.save()
-  }
-  function insBarras(state) {
-    const { ctx, chart, scale } = state
-    const { x0, y0, x1, y1 } = chart.position
-
-    ctx.save()
-    
-    let width = (x1 - x0 - chart.style.innerPadding.x*2)
-    let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
-    let barMargin = 30
-    let barPadding = barMargin/2
-    let barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
-
-    // let spaceWidth = (width)/chart.tags.length
-    // let spaceWidthPadding = spaceWidth*0.05
-    // let barsWidth = spaceWidth - spaceWidthPadding
-
-    let barsSize
-    chart.bars.width == 0 ? barsSize = 1 : chart.bars.width == 1 ? barsSize = 0.8 : chart.bars.width == 2 ? barsSize = 0.6 : barsSize = 1
-
-    let dy = scale.max == Math.max(...chart.values) ? height / Math.max(...chart.values) : height / scale.max
-    let x = chart.style.innerPadding.x + barMargin
-    ctx.translate(x0,y1 - chart.axis.width/2)
-    let borderBar = chart.bars.border.width
-    let vardx = barCont + barMargin + barPadding
-    for (let i = 0; i < chart.values.length; i++) {
-      let dx = vardx*i
-      resaltarBarras(state, x+dx,0,barCont - borderBar,-dy*chart.values[i], barPadding)
-
-      ctx.fillStyle = chart.bars.color
       ctx.beginPath()
-      ctx.rect(x + dx + borderBar/2,0,barCont - borderBar,-dy*chart.values[i])
-      ctx.closePath()
-      ctx.fill()
-      if (borderBar > 0) {
-        ctx.beginPath()
-        ctx.lineWidth = borderBar
-        ctx.strokeStyle = chart.bars.border.color
-        ctx.moveTo(x + dx,0)
-        ctx.lineTo(x + dx,-dy*chart.values[i])
-        ctx.lineTo(x + dx,-dy*chart.values[i])
-        ctx.lineTo(x + dx + barCont - borderBar,-dy*chart.values[i])
-        ctx.lineTo(x + dx + barCont - borderBar,0)
-        ctx.stroke()
+      if (chart.orientation != 'horizontal') {
+        let height = y1 - y0 - chart.style.innerPadding.y
+        let spaceScale = (height/scale.max)*scale.value
+        for (let i = scale.min; i <= scale.max; i+=scale.value) {
+          ctx.moveTo(x0 + chart.axis.width/2, y1 - spaceScale*i)
+          ctx.lineTo(x1 - (x1-x0)*0.02, y1 - spaceScale*i)
+        }
+      } else {
+        let width = x1 - x0 - chart.style.innerPadding.x - (x1-x0)*0.02
+        let spaceScale = (width/scale.max)*scale.value
+        for (let i = scale.min; i <= scale.max; i+=scale.value) {
+          ctx.moveTo(x0 + spaceScale*i, y1 - chart.axis.width/2)
+          ctx.lineTo(x0 + spaceScale*i, y0 + (y1-y0)*0.02 )
+        }
       }
-      
+      ctx.stroke()
+      ctx.closePath()
     }
-
     ctx.restore()
     ctx.save()
-  }
-  function insEtqDatos(state) {
-    console.log('insEtqDatos')
-    const { ctx } = state
-
   }
   function resaltarBarras(state, x0,y0,x1,y1, dist) {
     const { ctx, chart } = state
@@ -491,39 +522,209 @@ function datosSimb(state) {
   }
 // chart functions End
 
-// Chart Functions Pictorcs Begin
-  function insPic(state) {
-    console.log('insPic')
-  }
-  function insLeyenda(state) {
-    const { ctx, chart, container } = state
+// datos chart functions Begin
+  function insBarras(state) {
+    const { ctx, chart, scale } = state
+    const { x0, y0, x1, y1 } = chart.position
+
     ctx.save()
-    ctx.beginPath()
-    console.log('insLeyenda')
-    let img = new Image()
-    img.src = chart.image.src
-
-    capH = chart.image.height*3/4
-    capW = chart.image.height
-    ctx.translate(container.position.x1, container.position.y0)
-    ctx.strokeStyle = '#fff'
-    ctx.rect(0, 0, -capW,capH)
-    ctx.stroke()
-
-    let imageW = capW
-    let imageH = imageW*3/4
-    let imgCont = 
-    img.onload = function() {
-      ctx.translate(container.position.x1 - imageW, container.position.y0 + capH/2 - imageH/2)
-      ctx.drawImage(img, -imageW, 0,imageW,imageH)
-      ctx.translate(-10,-10)
-      ctx.font = 'bold 16px Arial'
-      ctx.fillStyle = 'red'
-      ctx.textBaseline = 'bottom'
-      ctx.fillText("= " + chart.image.caption.value,10,50);
+    
+    
+    let barMargin = 10
+    let barPadding = barMargin/2
+    
+    // let spaceWidth = (width)/chart.tags.length
+    // let spaceWidthPadding = spaceWidth*0.05
+    // let barsWidth = spaceWidth - spaceWidthPadding
+    
+    let barsSize
+    chart.bars.width == 0 ? barsSize = 1 : chart.bars.width == 1 ? barsSize = 0.8 : chart.bars.width == 2 ? barsSize = 0.6 : barsSize = 1
+    
+    if (chart.orientation != 'horizontal') {
+      let width = (x1 - x0 - chart.style.innerPadding.x*2)
+      let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
+      let barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
+      let dy = scale.max == Math.max(...chart.values) ? height / Math.max(...chart.values) : height / scale.max
+      let x = chart.style.innerPadding.x + barMargin
+      let xPos = x0
+      let yPos = y1 - chart.axis.width/2
+      let borderBar = chart.bars.border.width
+      let vardx = barCont + barMargin + barPadding
+      for (let i = 0; i < chart.values.length; i++) {
+        let dx = vardx*i
+        if (chart.bars.highlight.color != '') {
+          resaltarBarras(state, xPos + x + dx,yPos,barCont - borderBar,-dy*chart.values[i], barPadding)
+        }
+        ctx.fillStyle = chart.bars.color
+        ctx.beginPath()
+        ctx.rect(xPos + x + dx + borderBar/2,yPos,barCont - 2*borderBar,-dy*chart.values[i])
+        ctx.closePath()
+        ctx.fill()
+        if (borderBar > 0) {
+          ctx.beginPath()
+          ctx.lineWidth = borderBar
+          ctx.strokeStyle = chart.bars.border.color
+          ctx.moveTo(xPos + x + dx, yPos)
+          ctx.lineTo(xPos + x + dx,yPos - dy*chart.values[i])
+          ctx.lineTo(xPos + x + dx,yPos - dy*chart.values[i])
+          ctx.lineTo(xPos + x + dx + barCont - borderBar,yPos - dy*chart.values[i])
+          ctx.lineTo(xPos + x + dx + barCont - borderBar, yPos)
+          ctx.stroke()
+        }
+      }
+    } else {
+      let height = (y1 - y0 - chart.style.innerPadding.y*2)
+      let width = (x1 - x0 - chart.style.innerPadding.x - chart.axis.width/2)
+      //let width = (x1 - x0 - chart.style.innerPadding.x*2)
+      //let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
+      let barCont = (height - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
+      let dx = scale.max == Math.max(...chart.values) ? width / Math.max(...chart.values) : width / scale.max
+      let x = chart.style.innerPadding.x + barMargin
+      let y = chart.style.innerPadding.y/2 + barMargin
+      let xPos = x0 + chart.axis.width/2
+      let yPos = y1
+      let borderBar = chart.bars.border.width
+      console.log(barCont)
+      let vardx = barCont + barMargin + barPadding
+      let vardy = barCont + barMargin + barPadding
+      for (let i = 0; i < chart.values.length; i++) {
+        let dy = vardy*i
+        // if (chart.bars.highlight.color != '') {
+        //   resaltarBarras(state, xPos + x + dx,yPos,barCont - borderBar,-dy*chart.values[i], barPadding)
+        // }
+        ctx.fillStyle = chart.bars.color
+        ctx.beginPath()
+        // ctx.rect(xPos + x + dx + borderBar/2,yPos,barCont - 2*borderBar,-dy*chart.values[i])
+        ctx.rect(xPos,yPos - dy - y,dx*chart.values[i],-dx)
+        console.log(chart.values[i])
+        ctx.closePath()
+        ctx.fill()
+        // if (borderBar > 0) {
+        //   ctx.beginPath()
+        //   ctx.lineWidth = borderBar
+        //   ctx.strokeStyle = chart.bars.border.color
+        //   ctx.moveTo(xPos + x + dx, yPos)
+        //   ctx.lineTo(xPos + x + dx,yPos - dy*chart.values[i])
+        //   ctx.lineTo(xPos + x + dx,yPos - dy*chart.values[i])
+        //   ctx.lineTo(xPos + x + dx + barCont - borderBar,yPos - dy*chart.values[i])
+        //   ctx.lineTo(xPos + x + dx + barCont - borderBar, yPos)
+        //   ctx.stroke()
+        // }
+      }      
     }
 
     ctx.restore()
     ctx.save()
+  }
+  function insEtqDatos(state) {
+    console.log('insEtqDatos')
+    const { ctx } = state
+
+  }
+// datos chart functions End
+
+// Chart Functions Pictorcs Begin
+  function insLeyenda(state) {
+    const { ctx, chart, container, canvas } = state
+    const { x0, y0, x1, y1 } = chart.position
+    ctx.save()
+
+    let img = new Image()
+    img.src = chart.image.src
+    img.onload = function() {
+      // definimos el ancho y largo de la imagen
+      let heightImg = chart.image.caption.font.size*4/Math.max(...chart.values)
+      let imageH = chart.image.caption.font.size*3
+      let imageW = imageH*4/3
+      // se translada el ctx a la posición final del canvas en x y del container en Y
+      let xPos = canvas.position.x1
+      let yPos = container.position.y0
+      //ctx.translate(canvas.position.x1, container.position.y0)
+      ctx.font = chart.image.caption.font.weight + ' ' + chart.image.caption.font.size + 'px ' + chart.image.caption.font.family
+      ctx.textAlign = 'right'
+      ctx.textBaseline = 'middle'
+      let textVal = " = " + chart.image.caption.value
+      let textWidth = ctx.measureText(textVal).width // ancho del texto
+      ctx.strokeStyle = 'rgba(183, 183, 183, 0.9)'
+      ctx.fillStyle = 'rgba(227, 230, 232, 0.5)'
+      ctx.beginPath()
+      ctx.rect(xPos, yPos, -imageW-textWidth, imageH)
+      ctx.stroke()
+      ctx.fill()
+      ctx.beginPath()
+      ctx.fillStyle = chart.image.caption.font.color
+      ctx.fillText(textVal,xPos, yPos + imageH/2);
+      ctx.drawImage(img, xPos - imageW - textWidth, yPos,imageW,imageH)
+    }
+
+    ctx.restore()
+    ctx.save()
+  }
+  function insImages(state) {
+    const { ctx, chart, scale } = state
+    const { x0, y0, x1, y1 } = chart.position
+
+    ctx.save()
+    
+    let width = (x1 - x0 - chart.style.innerPadding.x*2)
+    let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
+    let heightImg = height/Math.max(...chart.values)
+    let barMargin = chart.bars.margin
+    let barPadding = barMargin/2
+    let barCont
+    if (chart.orientation == 'vertical') {
+      barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
+    } else {
+      barCont = (height - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
+    }
+    
+    let barsSize
+    chart.bars.width == 0 ? barsSize = 1 : chart.bars.width == 1 ? barsSize = 0.8 : chart.bars.width == 2 ? barsSize = 0.6 : barsSize = 1
+
+    //let dy = scale.max == Math.max(...chart.values) ? height / Math.max(...chart.values) : height / scale.max
+    let x = chart.style.innerPadding.x + barMargin
+    let y = chart.style.innerPadding.y + barMargin
+    //ctx.translate(x0,y1 - chart.axis.width/2)
+    let xPos = x0 + chart.axis.width/2
+    let yPos = y1 - chart.axis.width/2
+    let borderBar = chart.bars.border.width
+    let vardx = barCont + barMargin + barPadding
+    let vardy = barCont + barMargin + barPadding
+
+
+    let img = new Image()
+    img.src = chart.image.src
+    img.onload = function() {
+      // definimos el ancho y largo de la imagen
+      let imageH = heightImg
+      let imageW = imageH*4/3
+      if (chart.orientation == 'vertical') {
+        for (let i = 0; i < chart.values.length; i++) {
+          let dx = vardx*i
+          if (chart.bars.highlight.color != '') {
+            resaltarBarras(state, xPos+x+dx,yPos,barCont - borderBar,-imageH*chart.values[i], barPadding)
+          }
+          for (let j = 1; j <= chart.values[i]; j++) {
+            ctx.drawImage(img, xPos + x + dx, y1 - imageH*(j),imageW,imageH)
+          }
+        }
+      } else {
+        for (let i = 0; i < chart.values.length; i++) {
+          let dx = vardx*i
+          let dy = vardy*i
+          let paddingImg = (width/Math.max(...chart.values))/Math.max(...chart.values)
+          if (chart.bars.highlight.color != '') {
+            resaltarBarras(state, xPos,y1 - y - dy + imageH/2, (paddingImg+imageW)*chart.values[i], 0, 30)
+          }
+          for (let j = 1; j <= chart.values[i]; j++) {
+            ctx.drawImage(img, x0 + paddingImg + (paddingImg+imageW)*(j - 1), y1 - y - dy,imageW,imageH)
+          }
+        }
+      } 
+    }
+
+    ctx.restore()
+    ctx.save()
+
   }
 // Chart Functions Pictorcs End
