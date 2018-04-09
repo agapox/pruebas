@@ -10,7 +10,7 @@ state.scale = {
   width: 1,
   color: 'gray',
   min: 0,
-  max: 10
+  max: 8
 }
 state.titles = {
   mainTitle: {
@@ -94,6 +94,7 @@ state.container.position = {
 }
 state.chart = {
   orientation: 'vertical',
+  type:{pictoric: true},
   style: {
     border: {
       color: '',
@@ -159,6 +160,12 @@ state.chart.style.innerPadding.y = (state.chart.position.y1 - state.chart.positi
 state.scale.max = state.scale.max == 0 ? Math.max(...state.chart.values) : state.scale.max
 
 state.chart.image.height = (state.chart.position.y1 - state.chart.position.y0)*0.3
+
+data = {
+  lenVal: state.chart.values.length, lenTag: state.chart.tags.length
+}
+
+console.log('**** ' + state.chart.orientation)
 
 drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
 drawRect(state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
@@ -259,7 +266,8 @@ state = {
 */
 initEx(state)
 function initEx(state) {
-  if (true) {
+  const { pictoric } = state.chart.type
+  if (pictoric) {
     datosPictoric(state)
   } else {
     datosSimb(state)
@@ -292,7 +300,7 @@ function datosSimb(state) {
       let titleHorizontal = 'titleY'
       let titleVertical = 'titleX'
       insMainTitle(state)
-      if (chart.orientation != 'horizontal') {
+      if (chart.orientation == 'vertical') {
         titleHorizontal = 'titleX'
         titleVertical = 'titleY'
       }
@@ -377,44 +385,77 @@ function datosSimb(state) {
       insValuesY(state, valuesAxisY)
     }
     function insValuesX(state, valuesTags) {
-      const { ctx, chart, container, canvas } = state
+      const { ctx, chart, container, canvas, scale } = state
       const { tags, values, position, axis } = chart
       const { x0, x1, y0, y1 } = position
+      ctx.save()
+
+      let centerX, centerY, delta
       let len = valuesTags.length
       let width = (x1 - x0 - chart.style.innerPadding.x*2)
       let barMargin = chart.bars.margin
       let barPadding = barMargin/2
       let barCont = (width - barMargin*len - barPadding*len)/len
-      let vardx = barCont + barMargin + barPadding
-      let dxx = barCont - (chart.bars.border.width + barMargin +barPadding )/2
-      let x = x0 + axis.width + chart.style.padding.left + chart.bars.border.width
-      for (let i = 0; i < len; i++) {
-        let dx = vardx*i
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'top'
-        ctx.fillText(valuesTags[i], x + dx + dxx, container.position.y1 - (container.position.y1 - chart.position.y1)/2)
+
+      ctx.font = '14px Arial'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'top'
+      if (chart.orientation == 'vertical') {
+        centerX = x0 + chart.style.innerPadding.x + chart.bars.border.width
+        centerY = y1 + chart.axis.width*2
+        delta = barCont + barMargin + barPadding
+        for (let i = 0; i < len; i++) {
+          ctx.fillText(valuesTags[i], centerX + delta*i, centerY)
+        }
+      } else {
+        len = Math.max(...valuesTags) > scale.max ? Math.max(...valuesTags) : scale.max
+        centerX = x0 + chart.style.padding.left
+        centerY = y1 + chart.axis.width*2
+        delta = width/len
+        for (let i = scale.min; i <= scale.max; i+= scale.value) {
+          ctx.fillText((i), centerX + delta*i - delta/2, centerY)
+        }
       }
+      
+      ctx.restore()
+      ctx.save()
     }
     function insValuesY(state, valuesTags) {
-      console.log('insValuesY')
-      const { ctx, chart, container, canvas } = state
+      const { ctx, chart, container, canvas, scale } = state
       const { tags, values, position, axis } = chart
 
-      let len = valuesTags.length
-      let height = chart.position.y1 - chart.position.y0
-      let itemHeight = height/Math.max(...chart.values)
+      let height = chart.position.y1 - chart.position.y0 - chart.style.innerPadding.y
+      let width = chart.position.x1 - chart.position.x0
+      let barCont, len, itemHeight, barMargin, barPadding
+      barMargin = chart.bars.margin
+      barPadding = barMargin/2
+      ctx.font = '14px Arial'
+      ctx.textAlign = 'right'
+      ctx.textBaseline = 'middle'
+      if (chart.orientation == 'vertical') {
+        len = data.lenVal
+        barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/len
+        itemHeight = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+        x0 = container.position.x0 + (chart.position.x0 - container.position.x0)/2
+        y = itemHeight
+        y0 = chart.position.y1
+        for (let i = scale.min; i <= scale.max; i+=scale.value) {
+          ctx.fillText(i, x0,y0 - y*i)
+        }
+      } else {
+        len = data.lenTag
+        itemHeight = height/len
+        barCont = (height - barMargin*chart.tags.length - barPadding*chart.tags.length)/len
+        let vardy = barCont + barMargin + barPadding  
+        x0 = container.position.x0 + (chart.position.x0 - container.position.x0)/2
+        y0 = chart.position.y1 - itemHeight/4 - chart.bars.border.width
+        y = itemHeight
+        for (let i = 0, dy=0; i < len; i++, dy+=y) {
+          ctx.fillText(valuesTags[i], x0,y0 - dy)
+        }
 
-      x0 = container.position.x0 + (chart.position.x0 - container.position.x0)/2
-      y0 = chart.position.y1 + chart.style.innerPadding.x
-      y = itemHeight
-      console.log(chart)
-      console.log(height/Math.max(...chart.values))
-
-      for (let i = 0; i < len; i++) {
-        ctx.fillText(valuesTags[i], x0,y0 - y*chart.values[i])
-        //ctx.arc(x0,y0 - y*chart.values[i],5,0,1000)
-        //ctx.fill()
       }
+
     }
   // Insertar Valores en los ejes End
   function insChart(state) {
@@ -487,7 +528,7 @@ function datosSimb(state) {
       ctx.lineWidth = scale.width
       ctx.strokeStyle = scale.color
       ctx.beginPath()
-      if (chart.orientation != 'horizontal') {
+      if (chart.orientation == 'vertical') {
         let height = y1 - y0 - chart.style.innerPadding.y
         let spaceScale = (height/scale.max)*scale.value
         for (let i = scale.min; i <= scale.max; i+=scale.value) {
@@ -508,14 +549,16 @@ function datosSimb(state) {
     ctx.restore()
     ctx.save()
   }
-  function resaltarBarras(state, x0,y0,x1,y1, dist) {
+  function resaltarBarras(state, x0,y0,x1,y1) {
     const { ctx, chart } = state
     ctx.save()
-    xIni = x0 - chart.bars.border.width/2 - dist
-    xFin = x1 + chart.bars.border.width + dist*2
-    yIni = y0 + chart.style.padding.bottom
-    yFin = y1 - chart.style.padding.bottom*2
     ctx.fillStyle = chart.bars.highlight.color
+    xIni = x0 - chart.bars.border.width/2
+    xFin = x1 + chart.bars.border.width*2
+    yIni = y0 + chart.style.padding.bottom
+    yFin = y1 - chart.style.padding.bottom
+    xIni *= 1.2
+    console.log(chart.style.padding.bottom)
     ctx.fillRect(xIni,yIni,xFin,yFin)
     ctx.restore()
     ctx.save()
@@ -529,18 +572,12 @@ function datosSimb(state) {
 
     ctx.save()
     
-    
     let barMargin = 10
     let barPadding = barMargin/2
-    
-    // let spaceWidth = (width)/chart.tags.length
-    // let spaceWidthPadding = spaceWidth*0.05
-    // let barsWidth = spaceWidth - spaceWidthPadding
-    
     let barsSize
     chart.bars.width == 0 ? barsSize = 1 : chart.bars.width == 1 ? barsSize = 0.8 : chart.bars.width == 2 ? barsSize = 0.6 : barsSize = 1
     
-    if (chart.orientation != 'horizontal') {
+    if (chart.orientation == 'vertical') {
       let width = (x1 - x0 - chart.style.innerPadding.x*2)
       let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
       let barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
@@ -575,8 +612,6 @@ function datosSimb(state) {
     } else {
       let height = (y1 - y0 - chart.style.innerPadding.y*2)
       let width = (x1 - x0 - chart.style.innerPadding.x - chart.axis.width/2)
-      //let width = (x1 - x0 - chart.style.innerPadding.x*2)
-      //let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
       let barCont = (height - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
       let dx = scale.max == Math.max(...chart.values) ? width / Math.max(...chart.values) : width / scale.max
       let x = chart.style.innerPadding.x + barMargin
@@ -663,28 +698,29 @@ function datosSimb(state) {
   function insImages(state) {
     const { ctx, chart, scale } = state
     const { x0, y0, x1, y1 } = chart.position
-
     ctx.save()
     
     let width = (x1 - x0 - chart.style.innerPadding.x*2)
     let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
-    let heightImg = height/Math.max(...chart.values)
     let barMargin = chart.bars.margin
     let barPadding = barMargin/2
-    let barCont
+    let barCont, len, heightImg
     if (chart.orientation == 'vertical') {
-      barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
+      len = chart.tags.length
+      barCont = (width - barMargin*len - barPadding*len)/len
+      heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
     } else {
-      barCont = (height - barMargin*chart.tags.length - barPadding*chart.tags.length)/chart.tags.length
+      len = data.lenTag
+      barCont = (height - barMargin*len - barPadding*len)/len
+      console.log(height)
+      heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
     }
     
     let barsSize
     chart.bars.width == 0 ? barsSize = 1 : chart.bars.width == 1 ? barsSize = 0.8 : chart.bars.width == 2 ? barsSize = 0.6 : barsSize = 1
 
-    //let dy = scale.max == Math.max(...chart.values) ? height / Math.max(...chart.values) : height / scale.max
     let x = chart.style.innerPadding.x + barMargin
     let y = chart.style.innerPadding.y + barMargin
-    //ctx.translate(x0,y1 - chart.axis.width/2)
     let xPos = x0 + chart.axis.width/2
     let yPos = y1 - chart.axis.width/2
     let borderBar = chart.bars.border.width
@@ -698,26 +734,41 @@ function datosSimb(state) {
       // definimos el ancho y largo de la imagen
       let imageH = heightImg
       let imageW = imageH*4/3
+      let len
       if (chart.orientation == 'vertical') {
-        for (let i = 0; i < chart.values.length; i++) {
+        len = chart.tags.length
+        for (let i = 0; i < len; i++) {
           let dx = vardx*i
+          let xInit = xPos, xFin = imageW
+          let yInit = yPos, yFin = -imageH*chart.values[i]-imageH
+          let delta = (barCont - barMargin - barPadding)*0.2
           if (chart.bars.highlight.color != '') {
-            resaltarBarras(state, xPos+x+dx,yPos,barCont - borderBar,-imageH*chart.values[i], barPadding)
+            resaltarBarras(state, xInit + (barCont + barMargin)*i,yInit, xFin,yFin)
           }
           for (let j = 1; j <= chart.values[i]; j++) {
-            ctx.drawImage(img, xPos + x + dx, y1 - imageH*(j),imageW,imageH)
+            ctx.drawImage(img, xPos + x/2 + dx, y1 - imageH*(j) - imageH/2,imageW,imageH)
           }
         }
       } else {
-        for (let i = 0; i < chart.values.length; i++) {
+        len = chart.values.length
+        let y = chart.style.innerPadding.y + barMargin/2
+        let widthSpace = width/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+        let heightSpace = height/chart.tags.length
+        console.log(heightSpace)
+        let countFor;
+        for (let i = 0; i < len; i++) {
           let dx = vardx*i
           let dy = vardy*i
-          let paddingImg = (width/Math.max(...chart.values))/Math.max(...chart.values)
-          if (chart.bars.highlight.color != '') {
-            resaltarBarras(state, xPos,y1 - y - dy + imageH/2, (paddingImg+imageW)*chart.values[i], 0, 30)
-          }
           for (let j = 1; j <= chart.values[i]; j++) {
-            ctx.drawImage(img, x0 + paddingImg + (paddingImg+imageW)*(j - 1), y1 - y - dy,imageW,imageH)
+            ctx.drawImage(img, xPos + (widthSpace)*(j) - widthSpace/2, y1 - y - dy,imageW,imageH)
+            countFor = j
+          }
+          if (chart.bars.highlight.color != '') {
+            let initX = x0 - chart.style.innerPadding.x/2 - chart.axis.width - chart.style.padding.left
+            let initY = y1 - chart.style.padding.bottom - chart.axis.width - chart.style.innerPadding.y - heightSpace*i + heightSpace/2
+            let finX = xPos + (widthSpace)*(countFor) - widthSpace/2
+            let finY = -heightSpace + barMargin + barPadding
+            resaltarBarras(state, initX, initY, finX, finY)
           }
         }
       } 
