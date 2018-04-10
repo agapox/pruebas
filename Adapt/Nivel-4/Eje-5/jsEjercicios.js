@@ -136,116 +136,114 @@ function enviar(){
 	// llamadas a las funciones del eje 5
 	
 }
-
-	function validaNumero(elEvento){ 
-		var evento = window.event || elEvento;
-		var teclaPresionada = String.fromCharCode(evento.charCode);
-		var soloFlechas = evento.charCode;
-		if(soloFlechas == 37 || soloFlechas == 38 || soloFlechas == 39 || soloFlechas == 40){
-			return false;
-		}
-		var soloNumero = new RegExp(/[0-9]/g);
-		if(!soloNumero.test(teclaPresionada) || $(elEvento).val().length > 8){
-			evento.preventDefault();
-		}		
+function validaNumero(elEvento){ 
+	var evento = window.event || elEvento;
+	var teclaPresionada = String.fromCharCode(evento.charCode);
+	var soloFlechas = evento.charCode;
+	if(soloFlechas == 37 || soloFlechas == 38 || soloFlechas == 39 || soloFlechas == 40){
+		return false;
 	}
-
-	function validaFormato(elemento){ 
-		var sinEspacios = $(elemento).val().replace(/ /g,"");
-		var array = sinEspacios.split("");
-		var res = "";		
-		
-		if(sinEspacios.length <= 3){
-			$(elemento).val(sinEspacios);
-			return false;
-		}
-		
-		if(sinEspacios.length == 5){
-			$(array).each(function(i){
-				if(i == 2){
-					res += " "+this;
-				}else{
-					res += this;
-				}
-			});
-			$(elemento).val(res);
-			return false;
-		}
-		if(sinEspacios.length == 6){
-			$(array).each(function(i){
-				if(i == 3){
-					res += " "+this;
-				}else{
-					res += this;
-				}
-			});
-			$(elemento).val(res);
-			return false;
-		}		
-		
-		if(sinEspacios.length == 4){
-			$(array).each(function(i){
-				if(i == 1){
-					res += " "+this;
-				}else{
-					res += this;
-				}
-			});
-			$(elemento).val(res);
-			return false;
-		}			
-				
-		if(sinEspacios.length == 7){
-			$(array).each(function(i){
-				if(i == 1 || i == 4){
-					res += " "+this;
-				}else{
-					res += this;
-				}
-			});
-			$(elemento).val(res);
-			return false;
-		}		
-	}	
-	function limpiarVista(){
-		var domain = window.location.href.replace('http://','').replace('https://','').split(/[/?#]/)[0];
-		if(domain != "testing.adaptativamente.cl"
-			|| domain != "cursos.adaptativamente.cl"
-			|| domain != "preprod.adaptativamente.cl"
-			|| domain != "desarrollo.adaptativamente.cl"){
-					$("#imagenBotonRespuesta").css("visibility","visible");
+	var soloNumero = new RegExp(/[0-9]/g);
+	if(!soloNumero.test(teclaPresionada) || $(elEvento).val().length > 8){
+		evento.preventDefault();
+	}		
+}
+function validaFormato(elemento){ 
+	var sinEspacios = $(elemento).val().replace(/ /g,"");
+	var array = sinEspacios.split("");
+	var res = "";		
+	
+	if(sinEspacios.length <= 3){
+		$(elemento).val(sinEspacios);
+		return false;
+	}
+	
+	if(sinEspacios.length == 5){
+		$(array).each(function(i){
+			if(i == 2){
+				res += " "+this;
+			}else{
+				res += this;
 			}
-		var htmlLocal = $("body");
-		$(htmlLocal).find("input").each(function(){
-				if($(this).attr("type") == "text" || $(this).attr("type") == "number" ){
-						$(this).val("");
-				}
-				if($(this).attr("type") == "radio" && $(this).prop("checked") == true){
-						$(this).prop("checked",false)
-				}
-		}); 
-		$(htmlLocal).find("select").each(function(){
-				$('select option:first-child').attr("selected", "selected");
-		});                 
+		});
+		$(elemento).val(res);
+		return false;
 	}
-	function cerrarFeed(){
-		$("#divGeneralFeed").hide();
-		//$("#imagenBotonRespuesta").css("visibility","visible");
-		limpiarVista();
-		$(hiddenCierraFeed).val(true).trigger('change');        
-	}
-	function pressConsulta(){
-		$(hiddenPressConsulta).val("1").trigger('change');	
-	}
-	function cerrarFeedGlosa(){
-		$(hiddenSegundoError).val(true).trigger('change');
-		//$(hiddenCierraFeed).val(true).trigger('change');
-	}
-	function siguiente(){}
-	function sgteGlosa(){
-		$("#imagenBotonRespuesta").css("visibility","hidden");	
-		$(hiddenTutorial).val(true).trigger('change');
-	}
+	if(sinEspacios.length == 6){
+		$(array).each(function(i){
+			if(i == 3){
+				res += " "+this;
+			}else{
+				res += this;
+			}
+		});
+		$(elemento).val(res);
+		return false;
+	}		
+	
+	if(sinEspacios.length == 4){
+		$(array).each(function(i){
+			if(i == 1){
+				res += " "+this;
+			}else{
+				res += this;
+			}
+		});
+		$(elemento).val(res);
+		return false;
+	}			
+			
+	if(sinEspacios.length == 7){
+		$(array).each(function(i){
+			if(i == 1 || i == 4){
+				res += " "+this;
+			}else{
+				res += this;
+			}
+		});
+		$(elemento).val(res);
+		return false;
+	}		
+}	
+function limpiarVista(){
+	var domain = window.location.href.replace('http://','').replace('https://','').split(/[/?#]/)[0];
+	if(domain != "testing.adaptativamente.cl"
+		|| domain != "cursos.adaptativamente.cl"
+		|| domain != "preprod.adaptativamente.cl"
+		|| domain != "desarrollo.adaptativamente.cl"){
+				$("#imagenBotonRespuesta").css("visibility","visible");
+		}
+	var htmlLocal = $("body");
+	$(htmlLocal).find("input").each(function(){
+			if($(this).attr("type") == "text" || $(this).attr("type") == "number" ){
+					$(this).val("");
+			}
+			if($(this).attr("type") == "radio" && $(this).prop("checked") == true){
+					$(this).prop("checked",false)
+			}
+	}); 
+	$(htmlLocal).find("select").each(function(){
+			$('select option:first-child').attr("selected", "selected");
+	});                 
+}
+function cerrarFeed(){
+	$("#divGeneralFeed").hide();
+	//$("#imagenBotonRespuesta").css("visibility","visible");
+	limpiarVista();
+	$(hiddenCierraFeed).val(true).trigger('change');        
+}
+function pressConsulta(){
+	$(hiddenPressConsulta).val("1").trigger('change');	
+}
+function cerrarFeedGlosa(){
+	$(hiddenSegundoError).val(true).trigger('change');
+	//$(hiddenCierraFeed).val(true).trigger('change');
+}
+function siguiente(){}
+function sgteGlosa(){
+	$("#imagenBotonRespuesta").css("visibility","hidden");	
+	$(hiddenTutorial).val(true).trigger('change');
+}
 
 /*---------VALIDACIÓN INGRESO A EJERCICIO--------*/
 
@@ -373,14 +371,8 @@ $( document ).ready(function() {
 function cambio(elemento){
 	numeroIntento = $(elemento).val();	
 }
-
-function selInput(){
-	
-}
-
-function selecCbo(){
-	
-}
+function selInput(){}
+function selecCbo(){}
 
 /* Datos Gráficos */
 function DatosX2() { 
@@ -1360,7 +1352,6 @@ function DatosX() {
 		ctx.fillText(title.value, width/2, title.top) //INSERTAR TITULO
 	}
 }
-
 function datosPicto() {
 
 	let clase = $(".datos-r2").attr('class', 'text-center datos-r2a')  
@@ -2158,7 +2149,6 @@ function datosPicto() {
 	})
 
 }
-
 function conteoEnTablas() {
 	$(".tablaConteo").each(function(index, tabla) {
 			let tAlto = parseInt($(this).css("height"));
@@ -2176,7 +2166,6 @@ function conteoEnTablas() {
 			})
 	})
 }
-
 $(document).ready(function() {
 	let btnURL = 'https://desarrolloadaptatin.blob.core.windows.net/iconosimg/botones/Datos_Terminar'
 	let imgBtn = $('#imagenBotonRespuesta')
@@ -2185,13 +2174,9 @@ $(document).ready(function() {
 			src: btnURL
 		})
 	}
-	
 	conteoEnTablas()
-
 	datosPicto()
-
 	$('datos-r1').ready(function() {
 		DatosX()
 	})
-	
 })
