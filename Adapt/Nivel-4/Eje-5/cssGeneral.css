@@ -1,0 +1,321 @@
+.reloj_num {
+	font-family: "digital-7" !important;
+	font-size: 150% !important;
+	opacity: 0.3 !important;
+	color: #549C02;
+	display: inline;
+}
+.reloj_letra {
+	font-family: "digital-7" !important;
+	font-size: 150%;
+	color: #549C02;
+	display: inline;
+}
+.reloj_AM_PM {
+	font-family: "digital-7" !important;
+	font-size: 75% !important;
+	color: #549C02;
+	display: inline;
+}
+
+.inpNumerico {
+	font-size:20px; 
+	color:black; 
+	padding:7px; 
+	border-width:1px; 
+	border-radius:7px; 
+	border-style:solid; 
+	box-shadow: 0px 2px 7px 1px rgba(42,42,42,.75); 
+	border-color:#7FB542; 
+}
+#idTD{
+	border: 0px;
+}
+.spanConsulta{
+    font-family: "Larke Neue Thin";
+	src: url('./fontEjercicios/LarkeNeueThin.ttf');	
+	position:absolute;
+	top:5px;
+	left:50px;
+	font-size:170%;
+}
+select{
+    font-family: "Larke Neue Thin";
+	src: url('./fontEjercicios/LarkeNeueThin.ttf');		
+}
+label{
+	font-weight:100 !important;
+}
+
+.inpAlphanum {
+	font-size:20px; 
+	color:black; 
+	padding:7px; 
+	border-width:1px; 
+	border-radius:7px; 
+	border-style:solid; 
+	box-shadow: 0px 2px 7px 1px rgba(42,42,42,.75); 
+	border-color:#7FB542; 
+}
+
+.inpOpcion {
+	font-size:20px; 
+	color:black; 
+	padding:7px; 
+	border-width:1px; 
+	border-radius:7px; 
+	border-style:solid; 
+	box-shadow: 0px 2px 7px 1px rgba(42,42,42,.75); 
+	border-color:#7FB542; 
+	width:150px;
+}
+
+.tablaNormal { 
+	color:#549C02; 
+	border-radius:20px; 
+	border-style:solid; 
+	border-color:#7FB542; 
+	overflow:hidden;
+	border-collapse:separate;
+	box-shadow: 0px 2px 7px 1px rgba(42,42,42,.75); 
+}
+
+.tablaNormal   td:not(:last-child)  {
+	border-left: 1px solid #7FB542; 
+	border-right: 1px solid #7FB542; 
+	border-bottom: 1px solid #7FB542;
+}
+
+.tablaNormal   td{
+	font-size:200%;
+}
+
+h1, h2, h3, h4, h5, h6 , font{
+	font-size:200%;
+	color: #549C02;
+    font-family: "Larke Neue Thin";
+	src: url('./fontEjercicios/LarkeNeueThin.ttf');	
+}	
+
+div{
+	color: #549C02;
+    font-family: "Larke Neue Thin";
+	src: url('./fontEjercicios/LarkeNeueThin.ttf');		
+}
+
+label{
+	font-size:150%;
+	color: #549C02;
+    font-family: "Larke Neue Thin";
+	src: url('./fontEjercicios/LarkeNeueThin.ttf');	
+}
+/*
+.grupoRdoConImagen {
+  vertical-align: middle;	
+	
+}*/
+.tblImagenes {
+	display:inline;
+	vertical-align:text-tops;
+	
+}
+
+/* COMMON RADIO AND CHECKBOX STYLES  */
+
+input[type=radio],
+input[type=checkbox]{
+  /* hide original inputs */
+  visibility: hidden;
+  position: absolute;
+}
+input[type=radio] + label,
+input[type=checkbox] + label{
+  cursor:pointer;
+}
+#rdoButtonsDiv{
+  margin-top: -13px;	
+}
+input[type=radio] + label:before,
+input[type=checkbox] + label:before{
+  height:20px;
+  margin-right: 4px;
+  margin-top: 3px;
+  content: "   ";
+  display:inline-block;
+  vertical-align: text-top;
+  transition: 0.3s;
+  border:1px solid #ccc;
+  border-radius:10px;
+  box-shadow: inset 0 -3px 6px #e4e4e4;
+  transition: 0.3s;
+}
+
+/* CUSTOM RADIO AND CHECKBOX STYLES */
+/* DEFAULT */
+input[type=radio] + label:before{
+  border-radius:50%;
+  width:20px;
+  border:solid;
+  border-color:#7FB542;
+}
+input[type=checkbox] + label:before{
+  border-radius:2px;
+  width:26px;
+}
+/* CHECKED */
+input[type=radio]:checked + label:before{
+  box-shadow: inset 0 -1px 3px #e4e4e4, inset 0 0 1px #222, inset 0 0 0 20px gold;
+}
+input[type=checkbox]:checked + label:before{
+  box-shadow: inset 0 -1px 3px #e4e4e4, inset 0 0 1px #222, inset 0 0 0 20px gold;
+}
+
+.divGeneralFeed {
+	width:100%;
+	height:25%;
+	position:absolute;
+}
+
+.div1Feed {
+	position:absolute;
+	top:25%;
+	left:6%;
+}
+
+.bubble {
+	position: absolute;
+	width: 630px;
+	height: 100%;
+	padding: 0px;
+	background: #FFFFFF;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	margin-left:25%;
+	z-index:9999;
+	box-shadow: 6px 6px 13px 1px rgba(42,42,42,.75); 
+	text-align: left;
+}
+
+.feedFlecha{
+	content: '';
+	position: absolute;
+	border-style: solid;
+	border-width: 17px 25px 17px 0;
+	border-color: transparent #FFFFFF;
+	display: block;
+	width: 0;
+	z-index: 1;
+	left: -25px;
+	top: 58px;
+}
+
+.feedFlechaAbajo{
+	content: '';
+	position: absolute;
+	border-style: solid;
+	border-width: 15px 15px 0;
+	border-color: #FFFFFF transparent;
+	display: block;width: 0;
+	z-index: 1;
+	bottom: -15px;
+	left: 110px;
+}
+
+.spanFeedBack{
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);	
+	font-family: "Larke Neue Thin";
+	src: url('./fontEjercicios/LarkeNeueThin.ttf');	
+	color:black;
+	font-size:150%;
+	width:100%;
+	width:100%;
+	align:center;
+	
+}
+.glyphicon-remove-circle{
+	border: 3px solid #fff;
+	border-radius: 30px;
+	background-color:#fff;
+	color: #549C02;
+}
+
+.btnFeedBackCerrar{
+	position: absolute;
+	top: -4px;
+	right: -25px;
+	border-radius:30px;
+	border:none;	
+	background-color:transparent;
+	width:7%;	
+}
+.imgFeed{
+	z-index:9999;
+	width:50%;
+}
+
+.div1Feed{
+	z-index:9999;
+}
+
+#tblcrdt thead td{
+	padding:5px;
+	text-align: center;
+}
+#tblcrdt tbody td{
+	background: #fff;
+	border-bottom:1px solid #999;
+	text-align: center;
+}
+
+#tablapv{position:absolute; top:0px; left:0px;}
+#indicadorTb td{position: relative;}
+#tablapv td{position:relative; border-top:1px solid; border-right:1px solid;}
+#tablapv td img{position:absolute; }
+.indnm{font-family: arial; text-align: center; display: block;}
+.origincord{position: initial !important;}
+.vertice .indnm.vert{ position: absolute; right: 10px; top: -7px;}
+.vertice .indnm.hoz{position: absolute;right: -4px;}
+.hlhpoint .circll{content:'';position: absolute;width: 10px;height: 10px;border-radius: 100%;right: -6px;top: -6px;}
+.centrocdr{top: 5px !important;}
+.roundertb{border:1px solid #333; border-radius: 7px; overflow:hidden; height: 100%;}
+#tablapv td:last-child{border-right:0px;}
+#tablapv tr:first-child td:first-child{border-top:0px;}
+#tablapv tr:last-child td:first-child{border-bottom:0px;}
+#tablapv tr:first-child td:last-child{border-top:0px;}
+#tablapv tr:last-child td:last-child{border-bottom:0px;}
+
+/* Color de los textos de los feedbacks, la glosa, los inputs y selects */
+select.dropdown-toggle, select.dropdown-toggle option, 
+#spanFeedBack, input.inpNumerico, input.inpAlphanum {
+	color: #549C02;
+}
+
+#ejercicioFooter #consulta {
+	border: 2px solid #7FB542 !important;
+}
+
+#ejercicioFooter {
+	background: #d4e6c0;
+	border-top: 4px solid #7FB542 !important;
+}
+
+.tablaConteo { 
+	color:#549C02;
+	border:2px solid #7FB542; 
+	overflow:hidden;
+	text-align:center;
+}
+
+.tablaConteo td {
+	border:2px solid #7FB542;
+	padding: 0.5em 0.5em 0.2em;
+}
+
+.tablaConteo tr.subtituloConteo td, .tablaConteo tr.tituloConteo td  {
+	padding: 0.2em 0.5em 0em;
+}

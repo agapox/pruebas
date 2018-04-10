@@ -165,11 +165,9 @@ data = {
 
 console.log('**** ' + state.chart.orientation)
 
-drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
-drawRect(state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
-drawRect(state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
-// drawRect(state.canvas.position)
-// drawRect(state.container.position)
+// drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
+// drawRect(state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
+// drawRect(state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
 function drawRect(x0,y0,x1,y1) {
   const { ctx } = state
   ctx.strokeRect(x0,y0,x1,y1)
@@ -264,28 +262,42 @@ state = {
 */
 initEx(state)
 function initEx(state) {
+  const { ctx } = state
   const { pictoric } = state.chart.type
+  ctx.save()
   if (pictoric) {
     datosPictoric(state)
   } else {
     datosSimb(state)
   }
+  ctx.restore()
+  ctx.save()
 }
 
 function datosPictoric(state) {
+  const { ctx } = state
+  ctx.save()
   insTitulos(state)
-  insValoresEjes(state)
+  guidelines(state)
   insChart(state)
   insLeyenda(state)
   insImages(state)
+  insValoresEjes(state)
+  insEtqDatos(state)
+  ctx.restore()
+  ctx.save()
 }
 function datosSimb(state) {
+  const { ctx } = state
+  ctx.save()
   insTitulos(state)
   insValoresEjes(state)
   insChart(state)
   guidelines(state)
   insBarras(state)
   // insEtqDatos(state)
+  ctx.restore()
+  ctx.save()
 }
 
 
@@ -371,8 +383,9 @@ function datosSimb(state) {
   // insTitulos End
   // Insertar Valores en los ejes Begin
     function insValoresEjes(state) {
-      const { chart } = state
+      const { ctx, chart } = state
       const { tags, values } = chart
+      ctx.save()
       let valuesAxisX = values
       let valuesAxisY = tags
       if (chart.orientation == 'vertical') {
@@ -381,6 +394,8 @@ function datosSimb(state) {
       }
       insValuesX(state, valuesAxisX)
       insValuesY(state, valuesAxisY)
+      ctx.restore()
+      ctx.save()
     }
     function insValuesX(state, valuesTags) {
       const { ctx, chart, container, canvas, scale } = state
@@ -426,7 +441,8 @@ function datosSimb(state) {
     function insValuesY(state, valuesTags) {
       const { ctx, chart, container, canvas, scale } = state
       const { tags, values, position, axis } = chart
-
+      ctx.save()
+      
       let height = chart.position.y1 - chart.position.y0 - chart.style.innerPadding.y
       let width = chart.position.x1 - chart.position.x0
       let barCont, len, itemHeight, barMargin, barPadding
@@ -456,9 +472,9 @@ function datosSimb(state) {
         for (let i = 0, dy=0; i < len; i++, dy+=y) {
           ctx.fillText(valuesTags[i], x0,y0 - dy)
         }
-
       }
-
+      ctx.restore()
+      ctx.save()
     }
   // Insertar Valores en los ejes End
   function insChart(state) {
@@ -479,13 +495,17 @@ function datosSimb(state) {
     const { axis } = state.chart
     ctx.save()
 
-    ctx.beginPath()
     ctx.lineWidth = axis.width
     ctx.strokeStyle = axis.color
     ctx.beginPath()
     ctx.moveTo(x0,y0)
     ctx.lineTo(x0,y1)
+    ctx.closePath()
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(x0,y1)
     ctx.lineTo(x1,y1)
+    ctx.closePath()
     ctx.stroke()
     
     ctx.restore()
@@ -496,37 +516,47 @@ function datosSimb(state) {
     const { axis } = chart
     ctx.save()
 
-    ctx.beginPath()
     ctx.lineWidth = axis.width
     ctx.strokeStyle = axis.arrowColor
-    //ctx.lineCap = "round"; round, square, butt
+    ctx.lineCap = "round"; // round, square, butt
     ctx.lineJoin="round"; // bevel, round, miter
-
+    
     let width = chart.position.x1 - chart.position.x0
     let deltaLength = width*0.025
     let deltaIncl = deltaLength*0.7
 
     if (axis.arrowX) {
+      ctx.beginPath()
       ctx.moveTo(x0 - deltaIncl,y0 + deltaLength)
       ctx.lineTo(x0,y0)
+      ctx.closePath()
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(x0,y0)
       ctx.lineTo(x0 + deltaIncl,y0 + deltaLength)
+      ctx.closePath()
+      ctx.stroke()
     }
-    ctx.stroke()
     if (axis.arrowY) {
+      ctx.beginPath()
       ctx.moveTo(x1 - deltaLength,y1 + deltaIncl)
       ctx.lineTo(x1,y1)
+      ctx.closePath()
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(x1,y1)
       ctx.lineTo(x1 - deltaLength,y1 - deltaIncl)
+      ctx.closePath()
+      ctx.stroke()
     }
-    ctx.stroke()
-
     ctx.restore()
     ctx.save()
   } // End insFlechas
   function guidelines(state) {
     const { ctx, scale, chart } = state
     const { x0, y0, x1, y1 } = chart.position
-
     ctx.save()
+
     if(scale.width > 0 && scale.value > 0) {
       ctx.lineWidth = scale.width
       ctx.strokeStyle = scale.color
@@ -561,7 +591,6 @@ function datosSimb(state) {
     yIni = y0 + chart.style.padding.bottom
     yFin = y1 - chart.style.padding.bottom
     xIni *= 1.2
-    console.log(chart.style.padding.bottom)
     ctx.fillRect(xIni,yIni,xFin,yFin)
     ctx.restore()
     ctx.save()
@@ -572,7 +601,6 @@ function datosSimb(state) {
   function insBarras(state) {
     const { ctx, chart, scale } = state
     const { x0, y0, x1, y1 } = chart.position
-
     ctx.save()
     
     let barMargin = 10
@@ -656,8 +684,44 @@ function datosSimb(state) {
   }
   function insEtqDatos(state) {
     console.log('insEtqDatos')
-    const { ctx } = state
+    const { ctx, chart, scale } = state
+    const { values, tags, position } = chart
+    const { x0, y0, x1, y1 } = position
+    ctx.save()
 
+    let width = (x1 - x0 - chart.style.innerPadding.x*2)
+    let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
+    let barMargin = chart.bars.margin
+    let barPadding = barMargin/2
+    let barCont, len, heightImg
+    if (chart.orientation == 'vertical') {
+      len = chart.tags.length
+      barCont = (width - barMargin*len - barPadding*len)/len
+      heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+    } else {
+      len = data.lenTag
+      barCont = (height - barMargin*len - barPadding*len)/len
+      console.log(height)
+      heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+    }
+
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'bottom'
+    ctx.font = '14px Arial'
+    ctx.fillStyle = ''
+    if (chart.orientation == 'vertical') {
+      let xPos = chart.position.x0 + barCont
+      let yPos = chart.position.y1
+      for (let i = 0; i < values.length; i++) {
+        if (true/* arr[i] */) { // aquí va el array de las posiciones [true,false,true,true]
+          ctx.fillText(values[i], xPos + barCont*i + (barMargin + barPadding)*i, yPos - heightImg*values[i] - heightImg/2)
+        }
+      }
+    } else {
+      console.log('falta hacer el insertar etiquetas cuando el gráfico es horizontal')
+    }
+    ctx.restore()
+    ctx.save()
   }
 // datos chart functions End
 
@@ -685,9 +749,9 @@ function datosSimb(state) {
       let textWidth = ctx.measureText(textVal).width // ancho del texto
       ctx.strokeStyle = 'rgba(183, 183, 183, 0.9)'
       ctx.fillStyle = 'rgba(227, 230, 232, 0.5)'
-      ctx.beginPath()
-      ctx.rect(xPos, yPos, -imageW-textWidth, imageH)
-      ctx.stroke()
+      // ctx.beginPath()
+      // ctx.rect(xPos, yPos, -imageW-textWidth, imageH)
+      // ctx.stroke()
       ctx.fill()
       ctx.beginPath()
       ctx.fillStyle = chart.image.caption.font.color
