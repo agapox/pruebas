@@ -74,14 +74,12 @@ state.canvas = {
   padding: { top: 40, right: 10, bottom: 40, left: 40 },
   //margin: { top: 0, right: 0, bottom: 0, left: 0 }
 }
-
 state.canvas.position = {
   x0: state.canvas.padding.left,
   y0: state.canvas.padding.top,
   x1: c.width - (state.canvas.padding.right),
   y1: c.height - (state.canvas.padding.bottom) 
 }
-
 state.container = {
   padding: { top: 20 + state.titles.mainTitle.font.size, right: 10, bottom: 20 + state.titles.titleX.font.size, left:20 + state.titles.titleY.font.size },
   //margin: { top: 0, right: 0, bottom: 0, left:0 }
@@ -397,15 +395,20 @@ function datosSimb(state) {
       let barPadding = barMargin/2
       let barCont = (width - barMargin*len - barPadding*len)/len
 
+      let xPos = x0 + chart.axis.width/2
+      let x = chart.style.innerPadding.x + barMargin
+      let vardx = barCont + barMargin + barPadding
+      
       ctx.font = '14px Arial'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'top'
       if (chart.orientation == 'vertical') {
-        centerX = x0 + chart.style.innerPadding.x + chart.bars.border.width
         centerY = y1 + chart.axis.width*2
-        delta = barCont + barMargin + barPadding
+        //delta = barCont + barMargin + barPadding
         for (let i = 0; i < len; i++) {
-          ctx.fillText(valuesTags[i], centerX + delta*i, centerY)
+          let dx = vardx*i
+          centerX = xPos + x*1.5 + dx + chart.bars.border.width
+          ctx.fillText(valuesTags[i], centerX, centerY)
         }
       } else {
         len = Math.max(...valuesTags) > scale.max ? Math.max(...valuesTags) : scale.max
@@ -436,7 +439,7 @@ function datosSimb(state) {
         len = data.lenVal
         barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/len
         itemHeight = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
-        x0 = container.position.x0 + (chart.position.x0 - container.position.x0)/2
+        x0 = chart.position.x0 - (chart.position.x0 - container.position.x0)/4
         y = itemHeight
         y0 = chart.position.y1
         for (let i = scale.min; i <= scale.max; i+=scale.value) {
@@ -444,9 +447,9 @@ function datosSimb(state) {
         }
       } else {
         len = data.lenTag
-        itemHeight = height/len
         barCont = (height - barMargin*chart.tags.length - barPadding*chart.tags.length)/len
-        let vardy = barCont + barMargin + barPadding  
+        itemHeight = height/len
+        // let vardy = barCont + barMargin + barPadding
         x0 = container.position.x0 + (chart.position.x0 - container.position.x0)/2
         y0 = chart.position.y1 - itemHeight/4 - chart.bars.border.width
         y = itemHeight
@@ -727,7 +730,6 @@ function datosSimb(state) {
     let vardx = barCont + barMargin + barPadding
     let vardy = barCont + barMargin + barPadding
 
-
     let img = new Image()
     img.src = chart.image.src
     img.onload = function() {
@@ -739,14 +741,14 @@ function datosSimb(state) {
         len = chart.tags.length
         for (let i = 0; i < len; i++) {
           let dx = vardx*i
-          let xInit = xPos, xFin = imageW
+          let xInit = xPos + x - imageW/2, xFin = imageW
           let yInit = yPos, yFin = -imageH*chart.values[i]-imageH
           let delta = (barCont - barMargin - barPadding)*0.2
           if (chart.bars.highlight.color != '') {
-            resaltarBarras(state, xInit + (barCont + barMargin)*i,yInit, xFin,yFin)
+            resaltarBarras(state, xInit + barCont*i + (barMargin + barPadding + chart.bars.border.width)/2*i,yInit, xFin,yFin)
           }
           for (let j = 1; j <= chart.values[i]; j++) {
-            ctx.drawImage(img, xPos + x/2 + dx, y1 - imageH*(j) - imageH/2,imageW,imageH)
+            ctx.drawImage(img, xPos + x + dx, y1 - imageH*(j) - imageH/2,imageW,imageH)
           }
         }
       } else {
