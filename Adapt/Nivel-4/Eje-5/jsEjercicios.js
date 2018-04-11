@@ -1400,6 +1400,7 @@ function datosPicto() {
 					font: {
 						family: mainFontFamily,
 						weight: eval(datos.attr("fuenteAncho")) == 0 ? 'bold': 'normal',
+						color: datos.attr("titulografcolor"),
 						size: eval(datos.attr("tituloGrafSize"))
 					},
 					color: datos.attr("tituloGrafColor"),
@@ -1416,6 +1417,7 @@ function datosPicto() {
 					font: {
 						family: mainFontFamily,
 						weight: eval(datos.attr("fuenteAncho")) == 0 ? 'bold': 'normal',
+						color: datos.attr("fuentecolor"),
 						size: eval(datos.attr("tituloGrafSize"))*0.8
 					},
 					color: datos.attr("tituloGrafColor"),
@@ -1432,6 +1434,7 @@ function datosPicto() {
 					font: {
 						family: mainFontFamily,
 						weight: eval(datos.attr("fuenteAncho")) == 0 ? 'bold': 'normal',
+						color: datos.attr("fuentecolor"),
 						size: eval(datos.attr("tituloGrafSize"))*0.8
 					},
 					color: datos.attr("tituloGrafColor"),
@@ -1446,6 +1449,7 @@ function datosPicto() {
 				family: mainFontFamily,
 				weight: 400,
 				size: eval(datos.attr("fuenteTam")),
+				color: datos.attr("fuentecolor"),
 				align: 'left' // end, right, center, start, left
 			}
 			state.canvas = {
@@ -1498,19 +1502,24 @@ function datosPicto() {
 					src: datos.attr("pictoImage"),
 					caption: {
 						value: datos.attr("pictoValue") + ' ' + datos.attr("pictoTextVal"),
-						img: {},
+						show: eval(datos.attr("leyenda")),
 						font: {
-							size: eval(datos.attr("tituloGrafSize"))*0.7,
+							size: eval(datos.attr("fuentetam")),
 							color: '#262626',
 							family: eval(datos.attr("fuenteGraf")) == 0 ? 'Arial' : 'Arial',
 							alignX: 'right',
 							alignY: 'middle',
 							weight: eval(datos.attr("fuenteAncho")) == 0 ? 'bold': 'normal'
-						}
+						},
+						leyendaImgSize: eval(datos.attr("fuentetam"))*2,
 					}
 				},
 				values: datos.attr("grafVal").split(','),
 				tags: datos.attr("grafTags").split(','),
+				config: {
+					dataTags: datos.attr("grafdatatags").split(','),
+					hightLightBar: datos.attr("hightlightbar").split(','),
+				},
 				bars: {
 					width: 0, // 3 valores {0: grande, 1: mediana, 2: pequeña},
 					border: {
@@ -1526,14 +1535,17 @@ function datosPicto() {
 				}
 			}
 		
+			if(state.chart.image.src) {
+				state.chart.style.padding.top += state.chart.image.caption.leyendaImgSize
+			}
 			state.chart.position = { 
 				x0: state.container.position.x0 + state.chart.style.padding.left,
 				y0: state.container.position.y0 + state.chart.style.padding.top,
 				x1: state.container.position.x1 - (state.chart.style.padding.right),
 				y1: state.container.position.y1 - (state.chart.style.padding.bottom)
 			}
-			state.chart.style.innerPadding.x = (state.chart.position.x1 - state.chart.position.x0)*0.03
-			state.chart.style.innerPadding.y = (state.chart.position.y1 - state.chart.position.y0)*0.15
+			state.chart.style.innerPadding.x = (state.chart.position.x1 - state.chart.position.x0)*0.01
+			state.chart.style.innerPadding.y = (state.chart.position.y1 - state.chart.position.y0)*0.13
 
 			state.chart.bars.margin = state.chart.style.innerPadding.x
 		
@@ -1544,12 +1556,23 @@ function datosPicto() {
 			data = {
 				lenVal: state.chart.values.length, lenTag: state.chart.tags.length
 			}
-
 			console.log(state)
+			state.innerChart = {}
+			state.innerChart.position = {
+				x0: state.chart.position.x0 + state.chart.style.innerPadding.x + state.chart.style.padding.left,
+				y0: state.chart.position.y0 + state.chart.style.innerPadding.y,
+				x1: state.chart.position.x1 - state.chart.style.innerPadding.x - state.chart.style.padding.right,
+				y1: state.chart.position.y1
+			}
+
+			if(state.chart.orientation != 'vertical') {
+				state.innerChart.position.x0 = state.chart.position.x0
+			}
 		
-			// drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
-			// drawRect(state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
-			// drawRect(state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
+			drawRect(state.innerChart.position.x0,state.innerChart.position.y0,state.innerChart.position.x1-state.innerChart.position.x0,state.innerChart.position.y1-state.innerChart.position.y0)
+			drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
+			drawRect(state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
+			drawRect(state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
 			function drawRect(x0,y0,x1,y1) {
 				const { ctx } = state
 				ctx.strokeRect(x0,y0,x1,y1)
@@ -1570,12 +1593,14 @@ function datosPicto() {
 			}
 		
 			function datosPictoric(state) {
-				const { ctx } = state
+				const { ctx, chart } = state
 				ctx.save()
 				insTitulos(state)
 				guidelines(state)
 				insChart(state)
-				// insLeyenda(state)
+				if(chart.image.caption.show) {
+					insLeyenda(state)
+				}
 				insImages(state)
 				insValoresEjes(state)
 				insEtqDatos(state)
@@ -1693,9 +1718,9 @@ function datosPicto() {
 						ctx.save()
 					}
 					function insValuesX(state, valuesTags) {
-						const { ctx, chart, container, canvas, scale, font } = state
+						const { ctx, chart, container, canvas, scale, font, innerChart } = state
 						const { tags, values, position, axis } = chart
-						const { x0, x1, y0, y1 } = position
+						const { x0, x1, y0, y1 } = innerChart.position
 						ctx.save()
 		
 						let centerX, centerY, delta
@@ -1706,30 +1731,32 @@ function datosPicto() {
 						let barCont = (width - barMargin*len - barPadding*len)/len
 						let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
 		
-						let xPos = x0 + chart.axis.width/2
+						let heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+						let xPos = chart.position.x0 + heightImg + chart.bars.border.width
 						let x = chart.style.innerPadding.x + barMargin
 						let vardx = barCont + barMargin + barPadding
 
-						let heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+						let imageW = heightImg*4/3 - barPadding*2
 						
 						ctx.font = font.size + 'px ' + font.family
 						ctx.textAlign = 'center'
 						ctx.textBaseline = 'top'
+						ctx.fillStyle = font.color
 						if (chart.orientation == 'vertical') {
 							centerY = y1 + chart.axis.width*2
 							//delta = barCont + barMargin + barPadding
 							for (let i = 0; i < len; i++) {
-								let dx = vardx*i
-								centerX = xPos + chart.bars.border.width + x + dx + heightImg/2
-								ctx.fillText(valuesTags[i], centerX, centerY)
+								centerX = xPos
+								delta = barCont + barMargin + barPadding
+								ctx.fillText(valuesTags[i], x0 + (barCont + barMargin + barPadding)*i + barCont/2, centerY)
 							}
 						} else {
 							len = Math.max(...valuesTags) > scale.max ? Math.max(...valuesTags) : scale.max
-							centerX = x0 + chart.style.padding.left
+							centerX = x0
 							centerY = y1 + chart.axis.width*2
 							delta = width/len
 							for (let i = scale.min; i <= scale.max; i+= scale.value) {
-								ctx.fillText((i), centerX + delta*i - delta/2, centerY)
+								ctx.fillText((i), centerX + delta*i, centerY)
 							}
 						}
 						
@@ -1737,25 +1764,26 @@ function datosPicto() {
 						ctx.save()
 					}
 					function insValuesY(state, valuesTags) {
-						const { ctx, chart, container, canvas, scale, font } = state
+						const { ctx, chart, container, canvas, scale, font, innerChart } = state
 						const { tags, values, position, axis } = chart
 						ctx.save()
 						
-						let height = chart.position.y1 - chart.position.y0 - chart.style.innerPadding.y
-						let width = chart.position.x1 - chart.position.x0
+						let height = innerChart.position.y1 - innerChart.position.y0
+						let width = innerChart.position.x1 - innerChart.position.x0
 						let barCont, len, itemHeight, barMargin, barPadding
 						barMargin = chart.bars.margin
 						barPadding = barMargin/2
 						ctx.font = font.size + 'px ' + font.family
 						ctx.textAlign = 'right'
 						ctx.textBaseline = 'middle'
+						ctx.fillStyle = font.color
 						if (chart.orientation == 'vertical') {
 							len = data.lenVal
 							barCont = (width - barMargin*chart.tags.length - barPadding*chart.tags.length)/len
 							itemHeight = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
-							x0 = chart.position.x0 - (chart.position.x0 - container.position.x0)/4
+							x0 = chart.position.x0 - (chart.position.x0 - container.position.x0)/2
 							y = itemHeight
-							y0 = chart.position.y1
+							y0 = innerChart.position.y1
 							for (let i = scale.min; i <= scale.max; i+=scale.value) {
 								ctx.fillText(i, x0,y0 - y*i)
 							}
@@ -1853,8 +1881,8 @@ function datosPicto() {
 					ctx.save()
 				} // End insFlechas
 				function guidelines(state) {
-					const { ctx, scale, chart } = state
-					const { x0, y0, x1, y1 } = chart.position
+					const { ctx, scale, chart, innerChart } = state
+					const { x0, y0, x1, y1 } = innerChart.position
 					ctx.save()
 		
 					if(scale.width > 0 && scale.value > 0) {
@@ -1862,17 +1890,17 @@ function datosPicto() {
 						ctx.strokeStyle = scale.color
 						ctx.beginPath()
 						if (chart.orientation == 'vertical') {
-							let height = y1 - y0 - chart.style.innerPadding.y
+							let height = y1 - y0
 							let spaceScale = (height/scale.max)*scale.value
 							for (let i = scale.min; i <= scale.max; i+=scale.value) {
-								ctx.moveTo(x0 + chart.axis.width/2, y1 - spaceScale*i)
-								ctx.lineTo(x1 - (x1-x0)*0.02, y1 - spaceScale*i)
+								ctx.moveTo(chart.position.x0 + chart.axis.width, y1 - spaceScale*i)
+								ctx.lineTo(chart.position.x1 - (x1-x0)*0.02, y1 - spaceScale*i)
 							}
 						} else {
-							let width = x1 - x0 - chart.style.innerPadding.x - (x1-x0)*0.02
+							let width = x1 - x0 - (x1-x0)*0.02
 							let spaceScale = (width/scale.max)*scale.value
 							for (let i = scale.min; i <= scale.max; i+=scale.value) {
-								ctx.moveTo(x0 + spaceScale*i, y1 - chart.axis.width/2)
+								ctx.moveTo(x0 + spaceScale*i, y1)
 								ctx.lineTo(x0 + spaceScale*i, y0 + (y1-y0)*0.02 )
 							}
 						}
@@ -1883,15 +1911,10 @@ function datosPicto() {
 					ctx.save()
 				}
 				function resaltarBarras(state, x0,y0,x1,y1) {
-					const { ctx, chart } = state
+					const { ctx, chart, container } = state
 					ctx.save()
 					ctx.fillStyle = chart.bars.highlight.color
-					xIni = x0 - chart.bars.border.width/2
-					xFin = x1 + chart.bars.border.width*2
-					yIni = y0 + chart.style.padding.bottom
-					yFin = y1 - chart.style.padding.bottom
-					xIni *= 1.2
-					ctx.fillRect(xIni,yIni,xFin,yFin)
+					ctx.fillRect(x0,chart.position.y1+state.font.size*1.5,x1,y1 - state.font.size)
 					ctx.restore()
 					ctx.save()
 				}
@@ -1984,9 +2007,9 @@ function datosPicto() {
 				}
 				function insEtqDatos(state) {
 					console.log('insEtqDatos')
-					const { ctx, chart, scale, font } = state
+					const { ctx, chart, scale, font, innerChart } = state
 					const { values, tags, position } = chart
-					const { x0, y0, x1, y1 } = position
+					const { x0, y0, x1, y1 } = innerChart.position
 					ctx.save()
 		
 					let width = (x1 - x0 - chart.style.innerPadding.x*2)
@@ -2006,16 +2029,16 @@ function datosPicto() {
 						heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
 					}
 		
+					let imageW = heightImg*4/3 - barPadding*2
+
 					ctx.textAlign = 'center'
 					ctx.textBaseline = 'bottom'
-					ctx.font = font.size + 'px ' + font.family
-					ctx.fillStyle = ''
+					ctx.font = 'Bold ' + font.size + 'px ' + font.family
+					ctx.fillStyle = font.color
 					if (chart.orientation == 'vertical') {
-						let xPos = chart.position.x0 + heightImg + chart.bars.border.width
-						let yPos = chart.position.y1
 						for (let i = 0; i < values.length; i++) {
-							if (true/* arr[i] */) { // aquí va el array de las posiciones [true,false,true,true]
-								ctx.fillText(values[i], xPos + barCont*i + (barMargin + barPadding)*i, yPos - heightImg*values[i] - heightImg/2)
+							if (chart.config.dataTags[i] == 0) { // aquí va el array de las posiciones [true,false,true,true]
+								ctx.fillText(values[i], x0 + (barCont + barMargin + barPadding)*i + barCont/2, y1 - heightImg*values[i] - heightImg/5*(i+1))
 							}
 						}
 					} else {
@@ -2028,19 +2051,18 @@ function datosPicto() {
 		
 			// Chart Functions Pictorcs Begin
 				function insLeyenda(state) {
-					const { ctx, chart, container, canvas } = state
-					const { x0, y0, x1, y1 } = chart.position
+					let { ctx, chart, container, canvas } = state
+					const { x0, y0, x1, y1 } = canvas.position
 					ctx.save()
 		
 					let img = new Image()
 					img.src = chart.image.src
 					img.onload = function() {
 						// definimos el ancho y largo de la imagen
-						let heightImg = chart.image.caption.font.size*4/Math.max(...chart.values)
 						let imageH = chart.image.caption.font.size*3
 						let imageW = imageH*4/3
 						// se translada el ctx a la posición final del canvas en x y del container en Y
-						let xPos = canvas.position.x1
+						let xPos = chart.position.x1
 						let yPos = container.position.y0
 						//ctx.translate(canvas.position.x1, container.position.y0)
 						ctx.font = chart.image.caption.font.weight + ' ' + chart.image.caption.font.size + 'px ' + chart.image.caption.font.family
@@ -2050,9 +2072,9 @@ function datosPicto() {
 						let textWidth = ctx.measureText(textVal).width // ancho del texto
 						ctx.strokeStyle = 'rgba(183, 183, 183, 0.9)'
 						ctx.fillStyle = 'rgba(227, 230, 232, 0.5)'
-						// ctx.beginPath()
-						// ctx.rect(xPos, yPos, -imageW-textWidth, imageH)
-						// ctx.stroke()
+						ctx.beginPath()
+						ctx.rect(xPos, yPos, -imageW-textWidth, imageH)
+						ctx.stroke()
 						ctx.fill()
 						ctx.beginPath()
 						ctx.fillStyle = chart.image.caption.font.color
@@ -2064,12 +2086,12 @@ function datosPicto() {
 					ctx.save()
 				}
 				function insImages(state) {
-					const { ctx, chart, scale } = state
-					const { x0, y0, x1, y1 } = chart.position
+					const { ctx, chart, scale, innerChart } = state
+					const { x0, y0, x1, y1 } = innerChart.position
 					ctx.save()
 					
-					let width = (x1 - x0 - chart.style.innerPadding.x*2)
-					let height = (y1 - y0 - chart.style.innerPadding.y - chart.axis.width/2)
+					let width = (x1 - x0)
+					let height = (y1 - y0)
 					let barMargin = chart.bars.margin
 					let barPadding = barMargin/2
 					let barCont, len, heightImg
@@ -2080,62 +2102,48 @@ function datosPicto() {
 					} else {
 						len = data.lenTag
 						barCont = (height - barMargin*len - barPadding*len)/len
-						heightImg = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+						let heightImgAux1 = width/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+						let heightImgAux2 = height/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
+						heightImg = heightImgAux1 < heightImgAux2 ? heightImgAux1 : heightImgAux2
+
 					}
+					console.log(heightImg)
 					
 					let barsSize
 					chart.bars.width == 0 ? barsSize = 1 : chart.bars.width == 1 ? barsSize = 0.8 : chart.bars.width == 2 ? barsSize = 0.6 : barsSize = 1
-		
-					let x = chart.style.innerPadding.x + barMargin
-					let y = chart.style.innerPadding.y + barMargin
-					let xPos = x0 + chart.axis.width/2
-					let yPos = y1 - chart.axis.width/2
-					let borderBar = chart.bars.border.width
-					let vardx = barCont + barMargin + barPadding
-					let vardy = barCont + barMargin + barPadding
-		
+					
 					let img = new Image()
 					img.src = chart.image.src
 					img.onload = function() {
 						
 						// definimos el ancho y largo de la imagen
+						
 						let imageH = heightImg
-						let imageW = imageH*4/3
-						let len
+						let imageW = imageH*4/3 - barPadding*2
+						imageH = imageW*3/4
 						if (chart.orientation == 'vertical') {
+							let imaMargin = (heightImg - imageH)
 							len = chart.tags.length
 							for (let i = 0; i < len; i++) {
-								let dx = vardx*i
-								let xInit = xPos, xFin = imageW
-								let yInit = yPos, yFin = -imageH*chart.values[i]-imageH
-								let delta = (barCont - barMargin - barPadding)*0.2
+								let dx = barCont*i
+								let xInit = x0, xFin = imageW
+								let yInit = y1, yFin = -imageH*chart.values[i]-imageH
 								if (chart.bars.highlight.color != '') {
-									resaltarBarras(state, xPos + chart.style.innerPadding.x - chart.bars.border.width/2 + barCont*i,yInit, xFin,yFin)
+									ctx.fillStyle = 'rgba(0,0,0,0.5)'
+									if (chart.config.hightLightBar[i] == 0) {
+										resaltarBarras(state,x0 + (barCont+barMargin)*i,y1,imageW,yFin + imageH/2 - state.font.size)
+									}
 								}
 								for (let j = 1; j <= chart.values[i]; j++) {
-									ctx.drawImage(img, xPos + x + dx, y1 - imageH*(j) - imageH/2,imageW,imageH)
+									ctx.drawImage(img, x0 + (barCont+barMargin)*i, y1 - (imageH+imaMargin)*j,imageW,imageH)
 								}
 							}
 						} else {
-							len = chart.values.length
-							let y = chart.style.innerPadding.y + barMargin/2
-							let widthSpace = width/(Math.max(...chart.values) > scale.max ? Math.max(...chart.values) : scale.max)
-							let heightSpace = height/chart.tags.length
-							console.log(heightSpace)
-							let countFor;
+							let imaMargin = Math.abs((heightImg - imageW))
 							for (let i = 0; i < len; i++) {
-								let dx = vardx*i
-								let dy = vardy*i
 								for (let j = 1; j <= chart.values[i]; j++) {
-									ctx.drawImage(img, xPos + (widthSpace)*(j) - widthSpace/2, y1 - y - dy,imageW,imageH)
-									countFor = j
-								}
-								if (chart.bars.highlight.color != '') {
-									let initX = x0 - chart.style.innerPadding.x/2 - chart.axis.width - chart.style.padding.left
-									let initY = y1 - chart.style.padding.bottom - chart.axis.width - chart.style.innerPadding.y - heightSpace*i + heightSpace/2
-									let finX = xPos + (widthSpace)*(countFor) - widthSpace/2
-									let finY = -heightSpace + barMargin + barPadding
-									resaltarBarras(state, initX, initY, finX, finY)
+									console.log(imaMargin)
+									ctx.drawImage(img, x0 + imaMargin + (imageW+imaMargin)*i, y1 - (barCont+barMargin)*j,imageW,imageH)
 								}
 							}
 						} 
