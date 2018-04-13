@@ -123,7 +123,7 @@ function datos() {
 		}
 		state.chart = {
 			orientation: datos.attr("grafPos"),
-			type:{pictoric: true},
+			type: datos.attr("tipograf"),
 			style: {
 				border: {
 					color: '',
@@ -180,7 +180,8 @@ function datos() {
 					color: '#93939380'
 				},
 				padding: 1 // {0: grande, 1: mediana, 2: pequeña},
-			}
+			},
+			show: {tags: eval(datos.attr("tags")), values: eval(datos.attr("values"))}
 		}
 	
 		if(state.chart.image.caption.show) {
@@ -228,10 +229,10 @@ function datos() {
 
 		//console.log(state)
 		
-		// drawRect(state.innerChart.position.x0,state.innerChart.position.y0,state.innerChart.position.x1-state.innerChart.position.x0,state.innerChart.position.y1-state.innerChart.position.y0)
-		// drawRect(state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
-		// drawRect(state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
-		// drawRect(state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
+		drawRect(state,state.innerChart.position.x0,state.innerChart.position.y0,state.innerChart.position.x1-state.innerChart.position.x0,state.innerChart.position.y1-state.innerChart.position.y0)
+		// drawRect(state,state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
+		// drawRect(state,state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
+		// drawRect(state,state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
 
 		initEx(state)
 	}) // clase.each() END
@@ -240,89 +241,187 @@ function datos() {
 // nuevas
 
 // Sólo pruebas
-function drawRect(x0,y0,x1,y1) {
+function drawRect(state,x0,y0,x1,y1) {
 	const { ctx } = state
 	ctx.strokeRect(x0,y0,x1,y1)
 }
 
 function initEx(state) {
 	const { ctx } = state
-	const { pictoric } = state.chart.type
+	const { type } = state.chart
 	ctx.save()
-	
-	datosHistograma(state)
 
+	if (type == 'pictorico') {
+		datosPictoricos(state)
+	} else {
+		datosSimbolicos(state)
+	}
+	
 	ctx.restore()
 	ctx.save()
 }
 
 // Generar Gráfico Datos Histograma
-function datosHistograma(state){
+function datosPictoricos(state){
+	console.log('***datosPictoricos')
 	insTitulos(state)
 	insChart(state)
-	instHistogramas(state)
+	insPictoricos(state)
+	console.log('datosPictoricos***')
+}
+
+function insLeyenda(state) {
+
+}
+
+function insImages(state) {
+
+}
+
+function insPictoricos(state){
+	console.log('****insPictoricos')
+	const { ctx, innerChart, chart, scale, container } = state
+	const { lenVal, lenTag } = data
+	const { x0, y0, x1, y1 } = innerChart.position
+	const { scaleMax } = data
+	ctx.save()
+
+	let img = new Image()
+	img.src = chart.image.src
+
+	let width = x1 - x0
+	let height = y1 - y0
+	let colorBars = chart.bars.color.split(',')
+	let barMargin
+	if (chart.orientation == 'vertical') {
+		let barWidth = width/lenTag
+		let barheight = height/scaleMax
+		let imgW = barheight > barWidth ? barWidth : barheight
+		let imgH = imgW
+		barMargin = barWidth - imgW
+		//barWidth = barWidth - barMargin
+		img.onload = function() {
+			for (let i = scale.min; i <= scale.max; i += scale.value ) {
+				for (let j = 0; j < chart.values[i]; j++) {
+					chart.tags[i] &&
+						ctx.drawImage(img, x0 + barMargin/2 + (barWidth)*i, y1 - imgW*j,imgH,-imgW)
+					chart.values[i] && chart.tags[i] &&
+						insDataTagsBars(state, x0 + barWidth/2 + (barWidth)*i, y1 - imgH*chart.values[i], chart.values[i])
+				}
+				chart.show.tags && chart.tags[i] &&
+					insTags(state, x0 + barWidth/2 + (barWidth)*i, chart.position.y1, chart.tags[i])
+				chart.show.values &&
+					insValues(state, chart.position.x0, y0, x1, y1)
+			}
+		}
+	} else {
+		let barWidth = height/lenTag
+		let barheight = width/scaleMax
+		let barMargin = (barheight > barWidth ? barWidth : barheight)*0.2
+		let imgW = barWidth - barMargin
+		let imgH = imgW
+		//barMargin = barWidth - imgW
+		//barWidth = barWidth - barMargin
+		img.onload = function() {
+			for (let i = scale.min; i <= scale.max; i += scale.value ) {
+				for (let j = 0; j < chart.values[i]; j++) {
+					chart.tags[i] &&
+						ctx.drawImage(img, x0 + imgW*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+					chart.values[i] && chart.tags[i] &&
+						insDataTagsBars(state, x0 + imgW*chart.values[i], y1 - (imgH + barMargin)*i - barWidth/2, chart.values[i])
+				}
+				chart.show.tags && chart.tags[i] &&
+					insTags(state, chart.position.x0, y1 - (barWidth+barMargin)/2 - (barWidth)*i, chart.tags[i])
+				chart.show.values &&
+					insValues(state, chart.position.x0, y0, (barWidth+barMargin/2)*scale.max, y1)
+			}
+		}
+	}
+
+	ctx.restore()
+	ctx.save()
+	console.log('insPictoricos****')
+}
+
+// Generar Gráfico Datos Histograma
+function datosSimbolicos(state){
+	insTitulos(state)
+	insChart(state)
+	insBarras(state)
 }
 
 // Generar Barras Histogramas
-function instHistogramas(state){
+function insBarras(state) {
 	const { ctx, innerChart, chart, scale } = state
 	const { lenVal, lenTag } = data
 	const { x0, y0, x1, y1 } = innerChart.position
 	const { scaleMax } = data
+	ctx.save()
 	let width = x1 - x0
 	let height = y1 - y0
 	let colorBars = chart.bars.color.split(',')
+	let barMargin
 	if (chart.orientation == 'vertical') {
 		let barWidth = width/lenTag
 		let barheight = height/scaleMax
-		for (let i = 0; i < scaleMax; i++) {
-			if (chart.values[i]) {
-				ctx.fillStyle = colorBars[i%colorBars.length]
-				ctx.fillRect(x0 + barWidth*i,y1,barWidth,-barheight*chart.values[i])
-				if (chart.bars.border.width > 0) {
-					ctx.beginPath()
-					ctx.lineWidth = chart.bars.border.width
-					ctx.strokeStyle = chart.bars.border.color
-					ctx.moveTo(x0 + barWidth*i,y1)
-					ctx.lineTo(x0 + barWidth*i,y1 - barheight*chart.values[i])
-					ctx.lineTo(x0 + barWidth*(i+1),y1 - barheight*chart.values[i])
-					ctx.lineTo(x0 + barWidth*(i+1),y1)
-					ctx.stroke()
-				}
-				insDataTagsBars(state, x0 + barWidth*i + barWidth/2,y1 - barheight*chart.values[i], chart.values[i])
-				insTags(state, x0 + barWidth*i + barWidth/2, chart.position.y1, chart.tags[i])
-			}
-		}
-		insValues(state, x0, y0, x1, y1)
+		barMargin = barWidth*0.15
+		barWidth = barWidth - barMargin
 		for (let i = scale.min; i < scaleMax; i+=scale.value) {
 			insGuides(state, barheight*(i+scale.value))
 		}
-	} else {
-		let barWidth = width/scaleMax
-		let barheight = (height)/lenTag
 		for (let i = 0; i < scaleMax; i++) {
+			let xPos = x0 + barMargin/2
+			let delta = (barWidth + barMargin)
 			if (chart.values[i]) {
 				ctx.fillStyle = colorBars[i%colorBars.length]
-				ctx.fillRect(x0,y1 - barheight*i,barWidth*chart.values[i],-barheight)
+				ctx.fillRect(xPos + delta*i,y1,barWidth,-barheight*chart.values[i])
 				if (chart.bars.border.width > 0) {
 					ctx.beginPath()
 					ctx.lineWidth = chart.bars.border.width
 					ctx.strokeStyle = chart.bars.border.color
-					ctx.moveTo(x0,y1 - barheight*i)
-					ctx.lineTo(x0 + barWidth*chart.values[i],y1 - barheight*i)
-					ctx.lineTo(x0 + barWidth*chart.values[i],y1 - barheight*(i+1))
-					ctx.lineTo(x0,y1 - barheight*(i+1))
+					ctx.moveTo(xPos + delta*i,y1)
+					ctx.lineTo(xPos + delta*i,y1 - barheight*chart.values[i])
+					ctx.lineTo(xPos + delta*(i+1) - barMargin,y1 - barheight*chart.values[i])
+					ctx.lineTo(xPos + delta*(i+1) - barMargin,y1)
 					ctx.stroke()
 				}
-				insDataTagsBars(state, x0 + barWidth*chart.values[i],y1 - barheight*i - barheight/2, chart.values[i])
-				insTags(state, x0, y1 - barheight/2 - barheight*i, chart.tags[i])
+				insDataTagsBars(state, xPos + delta*i + barWidth/2,y1 - barheight*chart.values[i], chart.values[i])
+				insTags(state, xPos + delta*i + barWidth/2, chart.position.y1, chart.tags[i])
 			}
 		}
 		insValues(state, x0, y0, x1, y1)
+	} else {
+		let barWidth = width/scaleMax
+		let barheight = (height)/lenTag
+		barMargin = barheight*0.15
+		barheight = barheight - barMargin
 		for (let i = scale.min; i < scaleMax; i+=scale.value) {
 			insGuides(state, barWidth*(i+scale.value))
 		}
+		for (let i = 0; i < scaleMax; i++) {
+			let yPos = y1 - barMargin/2
+			let delta = (barheight + barMargin)
+			if (chart.values[i]) {
+				ctx.fillStyle = colorBars[i%colorBars.length]
+				ctx.fillRect(x0,yPos - delta*i,barWidth*chart.values[i],-barheight)
+				if (chart.bars.border.width > 0) {
+					ctx.beginPath()
+					ctx.lineWidth = chart.bars.border.width
+					ctx.strokeStyle = chart.bars.border.color
+					ctx.moveTo(x0,yPos - delta*i)
+					ctx.lineTo(x0 + barWidth*chart.values[i],yPos - delta*i)
+					ctx.lineTo(x0 + barWidth*chart.values[i],yPos - delta*(i+1) + barMargin)
+					ctx.lineTo(x0,yPos - delta*(i+1) + barMargin)
+					ctx.stroke()
+				}
+				insDataTagsBars(state, x0 + barWidth*chart.values[i],yPos - delta*i - barheight/2, chart.values[i])
+				insTags(state, x0, yPos - barheight/2 - delta*i, chart.tags[i])
+			}
+		}
+		insValues(state, x0, y0, x1, y1)
 	}
+	ctx.restore()
+	ctx.save()
 }
 
 // Insertar Titulos
@@ -414,10 +513,8 @@ function insChart(state) {
 	const { width, height } = state.chart
 	ctx.save()
 
-	
 	insEjes(state, x0, y0, x1, y1)
 	insFlechas(state, x0, y0, x1, y1)
-	// insBarras(state)
 	ctx.restore()
 	ctx.save()
 }
@@ -515,6 +612,7 @@ function insDataTagsBars(state, posX, posY, text) {
 // Insertar Tags
 function insTags(state, posX, posY, text) {
 	const { ctx, font, chart } = state
+	ctx.save()
 
 	if (chart.orientation == 'vertical') {
 		ctx.textAlign = 'center'
@@ -531,15 +629,20 @@ function insTags(state, posX, posY, text) {
 		posY += 100/font.size
 		ctx.fillText(text, posX - 5, posY)
 	}
+	ctx.restore()
+	ctx.save()
 }
 
 //Insertar Values
 function insValues(state, x0, y0, x1, y1) {
-	const { ctx, chart, scale } = state
+	const { ctx, chart, scale, font } = state
+	ctx.save()
 
 	let height = y1 - y0
 	let width = x1 - x0
 	
+	ctx.font = font.size + 'px ' + font.family
+	ctx.fillStyle = font.color
 	if (chart.orientation == 'vertical') {
 		ctx.textAlign = 'right'
 		ctx.textBaseline = 'middle'
@@ -555,11 +658,14 @@ function insValues(state, x0, y0, x1, y1) {
 			ctx.fillText(i,x0 + widthVal*i, chart.position.y1 + 5)
 		}
 	}
+	ctx.restore()
+	ctx.save()
 }
 
 // Insertar líneas guías
 function insGuides(state, delta) {
 	const { ctx, chart } = state
+	ctx.save()
 
 	if (chart.config.guideLines.width > 0) {
 		ctx.lineWidth = chart.config.guideLines.width
@@ -573,4 +679,6 @@ function insGuides(state, delta) {
 		}
 		ctx.stroke()
 	}
+	ctx.restore()
+	ctx.save()
 }
