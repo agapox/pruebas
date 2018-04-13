@@ -317,6 +317,7 @@ function insPictoricos(state){
 	} else {
 		let barWidth = height/lenTag
 		let barheight = width/scaleMax
+		console.log(scaleMax)
 		let barMargin = (barheight > barWidth ? barWidth : barheight)*0.2
 		let imgW = barWidth - barMargin
 		let imgH = imgW
@@ -326,14 +327,21 @@ function insPictoricos(state){
 			for (let i = scale.min; i <= scale.max; i += scale.value ) {
 				for (let j = 0; j < chart.values[i]; j++) {
 					chart.tags[i] &&
-						ctx.drawImage(img, x0 + imgW*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
-					chart.values[i] && chart.tags[i] &&
-						insDataTagsBars(state, x0 + imgW*chart.values[i], y1 - (imgH + barMargin)*i - barWidth/2, chart.values[i])
-				}
+						// imagenes pegadas al eje Y
+						//ctx.drawImage(img, x0 + chart.axis.width/4 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+						// ctx.fillRect(x0 + barWidth/2 - imgW/4 + chart.axis.width/4 + (barheight - imgW/2)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+						// Imágenes al medio
+						// ctx.drawImage(img, x0 + barWidth/2 - imgW/4 + chart.axis.width/4 + (barheight - imgW/2)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+						// imágenes al medio del valor
+						ctx.drawImage(img, x0 + chart.axis.width/4 + barheight/2 - imgH/2 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+						chart.values[i] && chart.tags[i] &&
+							insDataTagsBars(state, x0 + chart.axis.width/4 + barheight/4 - imgH + barheight*chart.values[i], y1 - (imgH + barMargin)*i - barWidth/2, chart.values[i])
+					}
+				insGuides(state, chart.axis.width/2 + barheight*i)
 				chart.show.tags && chart.tags[i] &&
 					insTags(state, chart.position.x0, y1 - (barWidth+barMargin)/2 - (barWidth)*i, chart.tags[i])
 				chart.show.values &&
-					insValues(state, chart.position.x0, y0, (barWidth+barMargin/2)*scale.max, y1)
+					insValues(state, x0, y0, x1, y1)
 			}
 		}
 	}
