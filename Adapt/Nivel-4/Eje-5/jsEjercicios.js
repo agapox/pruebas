@@ -148,7 +148,7 @@ function datos() {
 			image: {
 				src: datos.attr("pictoImage"),
 				caption: {
-					value: datos.attr("pictoValue") + ' ' + datos.attr("pictoTextVal"),
+					value: ' = ' + datos.attr("pictoValue") + ' ' + datos.attr("pictoTextVal"),
 					show: eval(datos.attr("leyenda")),
 					font: {
 						size: eval(datos.attr("fuentetam")),
@@ -182,7 +182,7 @@ function datos() {
 				padding: 1 // {0: grande, 1: mediana, 2: pequeña},
 			},
 			show: {tags: eval(datos.attr("tags")), values: eval(datos.attr("values"))}
-		}
+		} 
 	
 		if(state.chart.image.caption.show) {
 			state.chart.style.padding.top += state.chart.image.caption.leyendaImgSize
@@ -229,10 +229,10 @@ function datos() {
 
 		//console.log(state)
 		
-		drawRect(state,state.innerChart.position.x0,state.innerChart.position.y0,state.innerChart.position.x1-state.innerChart.position.x0,state.innerChart.position.y1-state.innerChart.position.y0)
-		// drawRect(state,state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
 		// drawRect(state,state.canvas.position.x0,state.canvas.position.y0,state.canvas.position.x1-state.canvas.position.x0,state.canvas.position.y1-state.canvas.position.y0)
 		// drawRect(state,state.container.position.x0,state.container.position.y0,state.container.position.x1-state.container.position.x0,state.container.position.y1-state.container.position.y0)
+		// drawRect(state,state.chart.position.x0,state.chart.position.y0,state.chart.position.x1-state.chart.position.x0,state.chart.position.y1-state.chart.position.y0)
+		// drawRect(state,state.innerChart.position.x0,state.innerChart.position.y0,state.innerChart.position.x1-state.innerChart.position.x0,state.innerChart.position.y1-state.innerChart.position.y0)
 
 		initEx(state)
 	}) // clase.each() END
@@ -267,15 +267,59 @@ function datosPictoricos(state){
 	insTitulos(state)
 	insChart(state)
 	insPictoricos(state)
+	insLeyenda(state)
 	console.log('datosPictoricos***')
 }
 
+// Insertar Leyenda
 function insLeyenda(state) {
+	console.log('****insLeyenda')
+	const { ctx, container, chart, innerChart, font } = state
+	const { caption } = chart.image
+	ctx.save()
 
-}
+	let img = new Image()
+	img.src = chart.image.src
 
-function insImages(state) {
+	let height = innerChart.position.y1 - innerChart.position.y0
+	let width = innerChart.position.x1 - innerChart.position.x0
 
+	let imgSize = 0.2
+	let imgW = height > width ? width*imgSize : height*imgSize
+	let imgH = imgW
+	let captText = caption.value
+	ctx.font = `bold ${caption.font.size}px ${caption.font.family}`
+	ctx.fillStyle = caption.font.color
+	let captTextW = ctx.measureText(captText).width
+	let captTextH = ctx.measureText(captText).height
+	
+	if (chart.orientation == 'vertical') {
+		ctx.textAlign = 'right'
+		ctx.textBaseline = 'middle'
+		ctx.fillText(captText, chart.position.x1, container.position.y0 + imgH/2)
+		img.onload = function() {
+			ctx.drawImage(img,chart.position.x1 - imgW - captTextW, container.position.y0, imgW,imgH)
+		}
+	} else {
+		console.log('hola')
+		ctx.textAlign = 'right'
+		ctx.textBaseline = 'middle'
+		ctx.fillText(captText, chart.position.x1, container.position.y0 + imgH/2)
+		img.onload = function() {
+			ctx.drawImage(img,chart.position.x1 - imgW - captTextW, container.position.y0, imgW,imgH)
+		}
+	}
+	let captBox = 0.2
+	ctx.fillStyle = 'rgba(0,0,0,0.2)'
+	ctx.strokeStyle = 'rgba(0,0,0,0.3)'
+	ctx.rect(chart.position.x1 - imgW - captTextW - imgW*captBox/2, container.position.y0 - imgH*captBox/2, (imgW + captTextW)*(captBox+1), imgH*(captBox+1))
+	ctx.stroke()
+	ctx.fill()
+
+
+	ctx.restore()
+	ctx.save()
+	console.log('insLeyenda****')
 }
 
 function insPictoricos(state){
@@ -299,8 +343,16 @@ function insPictoricos(state){
 		let imgW = barheight > barWidth ? barWidth : barheight
 		let imgH = imgW
 		barMargin = barWidth - imgW
-		//barWidth = barWidth - barMargin
+		let count = 0
 		img.onload = function() {
+			for (let i = scale.min; i <= scale.max; i += scale.value ) {
+				i != scale.min && scale.width > 0 &&
+				insGuides(state, chart.axis.width/2 + barheight*i)
+				chart.show.tags && chart.tags[i] &&
+					insTags(state, x0 + barWidth/2 + (barWidth)*i, chart.position.y1, chart.tags[i])
+				chart.show.values &&
+					insValues(state, chart.position.x0, y0, x1, y1)
+			}
 			for (let i = scale.min; i <= scale.max; i += scale.value ) {
 				for (let j = 0; j < chart.values[i]; j++) {
 					chart.tags[i] &&
@@ -308,40 +360,33 @@ function insPictoricos(state){
 					chart.values[i] && chart.tags[i] &&
 						insDataTagsBars(state, x0 + barWidth/2 + (barWidth)*i, y1 - imgH*chart.values[i], chart.values[i])
 				}
-				chart.show.tags && chart.tags[i] &&
-					insTags(state, x0 + barWidth/2 + (barWidth)*i, chart.position.y1, chart.tags[i])
-				chart.show.values &&
-					insValues(state, chart.position.x0, y0, x1, y1)
 			}
 		}
 	} else {
 		let barWidth = height/lenTag
 		let barheight = width/scaleMax
-		console.log(scaleMax)
 		let barMargin = (barheight > barWidth ? barWidth : barheight)*0.2
 		let imgW = barWidth - barMargin
 		let imgH = imgW
-		//barMargin = barWidth - imgW
-		//barWidth = barWidth - barMargin
 		img.onload = function() {
 			for (let i = scale.min; i <= scale.max; i += scale.value ) {
-				for (let j = 0; j < chart.values[i]; j++) {
-					chart.tags[i] &&
-						// imagenes pegadas al eje Y
-						//ctx.drawImage(img, x0 + chart.axis.width/4 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
-						// ctx.fillRect(x0 + barWidth/2 - imgW/4 + chart.axis.width/4 + (barheight - imgW/2)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
-						// Imágenes al medio
-						// ctx.drawImage(img, x0 + barWidth/2 - imgW/4 + chart.axis.width/4 + (barheight - imgW/2)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
-						// imágenes al medio del valor
-						ctx.drawImage(img, x0 + chart.axis.width/4 + barheight/2 - imgH/2 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
-						chart.values[i] && chart.tags[i] &&
-							insDataTagsBars(state, x0 + chart.axis.width/4 + barheight/4 - imgH + barheight*chart.values[i], y1 - (imgH + barMargin)*i - barWidth/2, chart.values[i])
-					}
-				insGuides(state, chart.axis.width/2 + barheight*i)
+				i != scale.min && scale.width > 0 &&
+					insGuides(state, chart.axis.width/2 + barheight*i)
 				chart.show.tags && chart.tags[i] &&
 					insTags(state, chart.position.x0, y1 - (barWidth+barMargin)/2 - (barWidth)*i, chart.tags[i])
 				chart.show.values &&
 					insValues(state, x0, y0, x1, y1)
+			}
+			for (let i = scale.min; i <= scale.max; i += scale.value ) {
+				for (let j = 0; j < chart.values[i]; j++) {
+					chart.tags[i] &&
+						// imagenes pegadas al eje Y
+						// ctx.drawImage(img, x0 + chart.axis.width/4 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+						// imágenes al medio del valor
+						ctx.drawImage(img, x0 + chart.axis.width/4 + barheight/2 - imgH/2 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+						chart.values[i] && chart.tags[i] &&
+							insDataTagsBars(state, x0 + chart.axis.width/4 - barheight/4 + barheight*chart.values[i], y1 - (imgH + barMargin)*i - barWidth/2, chart.values[i])
+				}
 			}
 		}
 	}
