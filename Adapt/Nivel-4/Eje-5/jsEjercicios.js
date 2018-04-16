@@ -111,16 +111,7 @@ function datos() {
 			x1: c.width - (state.canvas.padding.right),
 			y1: c.height - (state.canvas.padding.bottom) 
 		}
-		state.container = {
-			padding: { top: 10 + state.titles.mainTitle.font.size, right: 10, bottom: 0 + state.titles.titleX.font.size, left:10 + state.titles.titleY.font.size },
-			//margin: { top: 0, right: 0, bottom: 0, left:0 }
-		}
-		state.container.position = { 
-			x0: state.canvas.position.x0 + state.container.padding.left,
-			y0: state.canvas.position.y0 + state.container.padding.top,
-			x1: state.canvas.position.x1 - state.container.padding.right,
-			y1: state.canvas.position.y1 - state.container.padding.bottom
-		}
+		
 		state.chart = {
 			orientation: datos.attr("grafPos"),
 			type: datos.attr("tipograf"),
@@ -166,7 +157,8 @@ function datos() {
 			config: {
 				dataTags: datos.attr("grafdatatags").split(','),
 				hightLightBar: datos.attr("hightlightbar").split(','),
-				guideLines: {color: datos.attr("escalacolor"), width: eval(datos.attr("escalaancho"))}
+				guideLines: {color: datos.attr("escalacolor"), width: eval(datos.attr("escalaancho"))},
+				girarTextos: {tags: eval(datos.attr("girTags")), values: eval(datos.attr("girValues"))}
 			},
 			bars: {
 				width: 1, // 3 valores {0: grande, 1: mediana, 2: pequeña},
@@ -182,16 +174,44 @@ function datos() {
 				padding: 1 // {0: grande, 1: mediana, 2: pequeña},
 			},
 			show: {tags: eval(datos.attr("tags")), values: eval(datos.attr("values"))}
-		} 
+		}
+
+		let tagWordSizeX = 0
+		let tagWordSizeY = 0
+		state.ctx.font = `${state.font.size}px ${state.font.family}`
+		let maxWord = 0
+		state.chart.tags.map( el => { if (maxWord < el.length) {maxWord = el}})
+		if (state.chart.orientation == 'vertical') {
+			tagWordSizeX = Math.sin(state.chart.config.girarTextos.tags*Math.PI/180)*state.ctx.measureText(maxWord).width
+		} else {
+			tagWordSizeY = Math.cos(state.chart.config.girarTextos.tags*Math.PI/180)*state.ctx.measureText(maxWord).width
+			// if (state.chart.config.girarTextos.tags > 0) {
+			// } else {
+			// 	tagWordSizeY = state.ctx.measureText(maxWord).width
+			// }
+
+		}
+
+		state.container = {
+			padding: { top: 10 + state.titles.mainTitle.font.size, right: 10, bottom: 0 + state.titles.titleX.font.size, left:10 + state.titles.titleY.font.size },
+			//margin: { top: 0, right: 0, bottom: 0, left:0 }
+		}
+
+		state.container.position = { 
+			x0: state.canvas.position.x0 + state.container.padding.left,
+			y0: state.canvas.position.y0 + state.container.padding.top,
+			x1: state.canvas.position.x1 - state.container.padding.right,
+			y1: state.canvas.position.y1 - state.container.padding.bottom
+		}
 	
 		if(state.chart.image.caption.show) {
 			state.chart.style.padding.top += state.chart.image.caption.leyendaImgSize
 		}
 		state.chart.position = { 
-			x0: state.container.position.x0 + state.chart.style.padding.left + state.font.size,
+			x0: state.container.position.x0 + state.chart.style.padding.left + state.font.size + tagWordSizeY,
 			y0: state.container.position.y0 + state.chart.style.padding.top,
 			x1: state.container.position.x1 - (state.chart.style.padding.right),
-			y1: state.container.position.y1 - (state.chart.style.padding.bottom) - state.font.size/2
+			y1: state.container.position.y1 - (state.chart.style.padding.bottom) - state.font.size/2 - tagWordSizeX
 		}
 		state.chart.style.innerPadding.x = (state.chart.position.x1 - state.chart.position.x0)*0.01
 		state.chart.style.innerPadding.y = (state.chart.position.y1 - state.chart.position.y0)*0.13
@@ -201,17 +221,6 @@ function datos() {
 		state.scale.max = state.scale.max == 0 ? Math.max(...state.chart.values) : state.scale.max
 	
 		state.chart.image.height = (state.chart.position.y1 - state.chart.position.y0)*0.3
-	
-		data = {
-			lenVal: state.chart.values.length,
-			lenTag: state.chart.tags.length,
-			scaleMax: state.scale.max
-		}
-
-		if(state.chart.config.dataTags) {
-			data.lenVal = state.chart.values.length
-			data.scaleMax
-		}
 		
 		state.innerChart = {}
 		state.innerChart.position = {
@@ -226,6 +235,34 @@ function datos() {
 			state.innerChart.position.x0 = state.chart.position.x0 + state.chart.axis.width/2
 			state.innerChart.position.x1 = state.chart.position.x1 - state.chart.style.innerPadding.x - state.chart.style.padding.right - state.chart.axis.width
 		}
+
+		data = {
+			maxVal: Math.max(...state.chart.values),
+			lenVal: state.chart.values.length,
+			lenTag: state.chart.tags.length,
+			scaleMax: state.scale.max,
+			scaleMin: state.scale.min,
+			scaleInterval: state.scale.value,
+			innerChart: {
+				width: state.innerChart.position.x1 - state.innerChart.position.x0,
+				height: state.innerChart.position.y1 - state.innerChart.position.y0,
+			}
+		}
+		let divisorLength = data.scaleMin > 1 ? (((data.scaleMax - data.scaleMin)/data.scaleInterval) + 1) : (((data.scaleMax - data.scaleMin)/data.scaleInterval))
+		if (state.chart.orientation == 'vertical') {
+			data.barHeight =  data.innerChart.height / divisorLength
+			data.barWidth = data.innerChart.width / state.chart.tags.length
+			data.vertDiv = data.scaleMax > data.maxVal ? (data.scaleMax - data.scaleMin)/data.scaleInterval : (data.maxVal - data.scaleMin)/data.scaleInterval
+			if (data.scaleMin > 1) {data.vertDiv+=1}
+		} else {
+			data.barHeight = data.innerChart.width / divisorLength
+			data.barWidth = data.innerChart.height / state.chart.tags.length
+			data.vertDiv = data.scaleMax > data.maxVal ? (data.scaleMax - data.scaleMin)/data.scaleInterval : (data.maxVal - data.scaleMin)/data.scaleInterval
+			if (data.scaleMin > 1) {data.vertDiv+=1}
+		}
+
+
+		console.log(data)
 
 		//console.log(state)
 		
@@ -247,28 +284,31 @@ function drawRect(state,x0,y0,x1,y1) {
 }
 
 function initEx(state) {
+	console.log('*initEx')
 	const { ctx } = state
 	const { type } = state.chart
 	ctx.save()
-
 	if (type == 'pictorico') {
 		datosPictoricos(state)
 	} else {
 		datosSimbolicos(state)
 	}
-	
 	ctx.restore()
 	ctx.save()
+	console.log('initEx*')
 }
 
 // Generar Gráfico Datos Histograma
 function datosPictoricos(state){
-	console.log('***datosPictoricos')
+	console.log('**datosPictoricos')
 	insTitulos(state)
 	insChart(state)
 	insPictoricos(state)
+	state.scale.width > 0 && insGuides(state)
+	state.chart.show.values && insValues(state)
+	state.chart.show.tags && insTags(state)
 	insLeyenda(state)
-	console.log('datosPictoricos***')
+	console.log('datosPictoricos**')
 }
 
 // Insertar Leyenda
@@ -301,7 +341,6 @@ function insLeyenda(state) {
 			ctx.drawImage(img,chart.position.x1 - imgW - captTextW, container.position.y0, imgW,imgH)
 		}
 	} else {
-		console.log('hola')
 		ctx.textAlign = 'right'
 		ctx.textBaseline = 'middle'
 		ctx.fillText(captText, chart.position.x1, container.position.y0 + imgH/2)
@@ -322,9 +361,10 @@ function insLeyenda(state) {
 	console.log('insLeyenda****')
 }
 
+// Generar Gráfico Datos Pictoricos
 function insPictoricos(state){
-	console.log('****insPictoricos')
-	const { ctx, innerChart, chart, scale, container } = state
+	console.log('***insPictoricos')
+	const { ctx, innerChart, chart, scale, container, font } = state
 	const { lenVal, lenTag } = data
 	const { x0, y0, x1, y1 } = innerChart.position
 	const { scaleMax } = data
@@ -333,59 +373,37 @@ function insPictoricos(state){
 	let img = new Image()
 	img.src = chart.image.src
 
-	let width = x1 - x0
-	let height = y1 - y0
 	let colorBars = chart.bars.color.split(',')
 	let barMargin
+	let heighVal = data.scaleMin > 1 ? 1 : 0
 	if (chart.orientation == 'vertical') {
-		let barWidth = width/lenTag
-		let barheight = height/scaleMax
-		let imgW = barheight > barWidth ? barWidth : barheight
+		let imgW = data.barHeight > data.barWidth ? data.barWidth : data.barHeight
 		let imgH = imgW
-		barMargin = barWidth - imgW
-		let count = 0
+		barMargin = data.barWidth - imgW
 		img.onload = function() {
-			for (let i = scale.min; i <= scale.max; i += scale.value ) {
-				i != scale.min && scale.width > 0 &&
-				insGuides(state, chart.axis.width/2 + barheight*i)
-				chart.show.tags && chart.tags[i] &&
-					insTags(state, x0 + barWidth/2 + (barWidth)*i, chart.position.y1, chart.tags[i])
-				chart.show.values &&
-					insValues(state, chart.position.x0, y0, x1, y1)
-			}
-			for (let i = scale.min; i <= scale.max; i += scale.value ) {
-				for (let j = 0; j < chart.values[i]; j++) {
+			for (let i = 0; i <= (data.scaleMax-data.scaleMin)/data.scaleInterval; i ++) {
+				for (let j = 0; j < (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
 					chart.tags[i] &&
-						ctx.drawImage(img, x0 + barMargin/2 + (barWidth)*i, y1 - imgW*j,imgH,-imgW)
+						ctx.drawImage(img, x0 + barMargin/2 + (data.barWidth)*i, y1 - imgW*(j+heighVal),imgH,-imgW)
 					chart.values[i] && chart.tags[i] &&
-						insDataTagsBars(state, x0 + barWidth/2 + (barWidth)*i, y1 - imgH*chart.values[i], chart.values[i])
+						insDataTagsBars(state, x0 + data.barWidth/2 + (data.barWidth)*i, y1 - data.barHeight - imgH*(chart.values[i]-data.scaleMin)/data.scaleInterval, chart.values[i])
 				}
 			}
 		}
 	} else {
-		let barWidth = height/lenTag
-		let barheight = width/scaleMax
-		let barMargin = (barheight > barWidth ? barWidth : barheight)*0.2
-		let imgW = barWidth - barMargin
+		let imgW = data.barHeight > data.barWidth ? data.barWidth : data.barHeight
 		let imgH = imgW
+		let barMargin = data.barHeight*0.2 - imgW
 		img.onload = function() {
-			for (let i = scale.min; i <= scale.max; i += scale.value ) {
-				i != scale.min && scale.width > 0 &&
-					insGuides(state, chart.axis.width/2 + barheight*i)
-				chart.show.tags && chart.tags[i] &&
-					insTags(state, chart.position.x0, y1 - (barWidth+barMargin)/2 - (barWidth)*i, chart.tags[i])
-				chart.show.values &&
-					insValues(state, x0, y0, x1, y1)
-			}
-			for (let i = scale.min; i <= scale.max; i += scale.value ) {
-				for (let j = 0; j < chart.values[i]; j++) {
+			for (let i = 0; i <= (data.scaleMax-data.scaleMin)/data.scaleInterval; i ++) {
+				for (let j = 0; j < (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
 					chart.tags[i] &&
 						// imagenes pegadas al eje Y
 						// ctx.drawImage(img, x0 + chart.axis.width/4 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
 						// imágenes al medio del valor
-						ctx.drawImage(img, x0 + chart.axis.width/4 + barheight/2 - imgH/2 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
+						ctx.drawImage(img, x0 + chart.axis.width/2 + (data.barHeight)*(j+heighVal), y1 - data.barWidth/2 + imgW/2 - (data.barWidth)*i + 100/font.size,imgH,-imgW)
 						chart.values[i] && chart.tags[i] &&
-							insDataTagsBars(state, x0 + chart.axis.width/4 - barheight/4 + barheight*chart.values[i], y1 - (imgH + barMargin)*i - barWidth/2, chart.values[i])
+							insDataTagsBars(state, x0 + chart.axis.width/4 - barMargin/2 + data.barWidth + data.barWidth*(chart.values[i]-data.scaleMin)/data.scaleInterval, y1 - (data.barWidth)*i - data.barWidth/2, chart.values[i])
 				}
 			}
 		}
@@ -393,7 +411,7 @@ function insPictoricos(state){
 
 	ctx.restore()
 	ctx.save()
-	console.log('insPictoricos****')
+	console.log('insPictoricos***')
 }
 
 // Generar Gráfico Datos Histograma
@@ -663,72 +681,105 @@ function insDataTagsBars(state, posX, posY, text) {
 }
 
 // Insertar Tags
-function insTags(state, posX, posY, text) {
-	const { ctx, font, chart } = state
+function insTags(state) {
+	console.log('****insTags')
+	const { ctx, font, chart, innerChart } = state
+	const { x0, y0, x1, y1 } = innerChart.position
 	ctx.save()
 
-	if (chart.orientation == 'vertical') {
-		ctx.textAlign = 'center'
-		ctx.textBaseline = 'top'
-		ctx.fillStyle = font.color
-		ctx.font = font.size + 'px ' + font.family
-		posY += 100/font.size
-		ctx.fillText(text, posX, posY)
-	} else {
-		ctx.textAlign = 'right'
-		ctx.textBaseline = 'middle'
-		ctx.fillStyle = font.color
-		ctx.font = font.size + 'px ' + font.family
-		posY += 100/font.size
-		ctx.fillText(text, posX - 5, posY)
+	let girarTexto = chart.config.girarTextos.tags
+	for (let i = 0; i < data.lenTag; i++) {
+		if (chart.tags[i]) {
+			if (chart.orientation == 'vertical') {
+				ctx.save()
+				ctx.textAlign = girarTexto > 0 ? 'right' : 'center'
+				ctx.textBaseline = girarTexto > 0 ? 'middle' : 'top'
+				ctx.translate(x0+ data.barWidth/2 + (data.barWidth)*(i), chart.position.y1 + 100/font.size)
+				girarTexto > 0 && ctx.rotate(-girarTexto*Math.PI/180)
+				ctx.fillStyle = font.color
+				ctx.font = font.size + 'px ' + font.family
+				ctx.fillText(chart.tags[i], 0,0)
+				ctx.restore()
+				ctx.save()
+			} else {
+				ctx.save()
+				ctx.textAlign = 'right'
+				ctx.textBaseline = 'middle'
+				ctx.translate(chart.position.x0 - 10, y1 - data.barWidth/2 - data.barWidth*i + 100/font.size)
+				girarTexto > 0 && ctx.rotate(-girarTexto*Math.PI/180)
+				ctx.fillStyle = font.color
+				ctx.font = font.size + 'px ' + font.family
+				ctx.fillText(chart.tags[i], 0, 0)
+				ctx.restore()
+				ctx.save()
+			}
+		}
 	}
 	ctx.restore()
 	ctx.save()
+	console.log('insTags****')
 }
 
 //Insertar Values
-function insValues(state, x0, y0, x1, y1) {
-	const { ctx, chart, scale, font } = state
+function insValues(state) {
+	console.log('****insValues')
+	const { ctx, chart, scale, font, innerChart } = state
+	const { x0, y0, x1, y1} = innerChart.position
 	ctx.save()
 
-	let height = y1 - y0
-	let width = x1 - x0
+	// chart.position.x0, y0, x1, y1
 	
 	ctx.font = font.size + 'px ' + font.family
 	ctx.fillStyle = font.color
 	if (chart.orientation == 'vertical') {
 		ctx.textAlign = 'right'
 		ctx.textBaseline = 'middle'
-		let heightVal = height/data.scaleMax
-		for (let i = scale.min; i <= data.scaleMax; i += scale.value) {
-			ctx.fillText(i,chart.position.x0 - 5, y1 - heightVal*(i))
+		for (let i = data.scaleMin, pos = scale.min > 1 ? 1 : 0; i <= data.scaleMax; i += data.scaleInterval, pos++) {
+			ctx.fillText(i,chart.position.x0 - 5, y1 - data.barHeight*(pos))
+		}
+		if (scale.min > 1) {
+			ctx.textBaseline = 'middle'
+			ctx.translate(chart.position.x0+1, y1 - data.barHeight/3)
+			ctx.rotate(70*Math.PI/180)
+			ctx.fillText('//', 0, 0)
+			ctx.translate(-(chart.position.x0+1), +(y1 - data.barHeight/3))
 		}
 	} else {
 		ctx.textAlign = 'center'
 		ctx.textBaseline = 'top'
-		let widthVal = width/data.scaleMax
-		for (let i = scale.min; i <= data.scaleMax; i += scale.value) {
-			ctx.fillText(i,x0 + widthVal*i, chart.position.y1 + 5)
+		for (let i = data.scaleMin, pos = scale.min > 1 ? 1 : 0; i <= data.scaleMax; i += data.scaleInterval, pos++) {
+			ctx.fillText(i,x0 + data.barHeight*pos, chart.position.y1 + 5)
+		}
+		if (scale.min > 1) {
+			ctx.textBaseline = 'middle'
+			ctx.translate(x0 + data.barHeight/3, chart.position.y1)
+			//ctx.rotate(90*Math.PI/180)
+			ctx.fillText('//',0, 0)
+			ctx.translate(-(chart.position.x0+5), -(y1 - data.barHeight/3))
 		}
 	}
 	ctx.restore()
 	ctx.save()
+	console.log('insValues****')
 }
 
 // Insertar líneas guías
-function insGuides(state, delta) {
+function insGuides(state) {
 	const { ctx, chart } = state
 	ctx.save()
 
 	if (chart.config.guideLines.width > 0) {
 		ctx.lineWidth = chart.config.guideLines.width
 		ctx.strokeStyle = chart.config.guideLines.color
-		if (chart.orientation == 'vertical') {
-			ctx.moveTo(chart.position.x0 + chart.axis.width/2, chart.position.y1 - delta)
-			ctx.lineTo(chart.position.x1 - chart.axis.width, chart.position.y1 - delta)
-		} else {
-			ctx.moveTo(chart.position.x0 + delta, chart.position.y1 - chart.axis.width/2)
-			ctx.lineTo(chart.position.x0 + delta, chart.position.y0 + chart.axis.width)
+
+		for (let i = 0; i < data.vertDiv; i ++) {
+			if (chart.orientation == 'vertical') {
+				ctx.moveTo(chart.position.x0 + chart.axis.width/2, chart.position.y1 - chart.axis.width/2 - data.barHeight*(i+1))
+				ctx.lineTo(chart.position.x1 - chart.axis.width, chart.position.y1 - chart.axis.width/2 - data.barHeight*(i+1))
+			} else {
+				ctx.moveTo(chart.position.x0 + chart.axis.width/2 + data.barHeight*(i+1), chart.position.y1 - chart.axis.width/2)
+				ctx.lineTo(chart.position.x0 + chart.axis.width/2 + data.barHeight*(i+1), chart.position.y0 + chart.axis.width)
+			}
 		}
 		ctx.stroke()
 	}
