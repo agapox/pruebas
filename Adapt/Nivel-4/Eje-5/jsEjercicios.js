@@ -37,10 +37,11 @@ function datos() {
 
 		let c = board
 
-		let mainScaleInterval, mainScaleMin, mainScaleMax, mainMaxValue, mainLenVal, mainLenTags, mainFontFamily
+		let mainScaleInterval, mainScaleMin, mainScaleMax, mainMaxValue, mainMinValue, mainLenVal, mainLenTags, mainFontFamily
 
 		mainFontFamily = eval(datos.attr("fuenteGraf")) == 0 ? 'Arial' : 'Arial'
 		mainMaxValue = Math.max(...datos.attr("grafVal").split(','))
+		mainMinValue = Math.min(...datos.attr("grafVal").split(','))
 		mainScaleInterval = eval(datos.attr("escalaInterval")) > 0 ? eval(datos.attr("escalaInterval")) : 1 
 		mainScaleMin = eval(datos.attr("escalaMin")) > 0 ? eval(datos.attr("escalaMin")) : 0
 		mainLenVal = datos.attr("grafVal").split(',').length
@@ -177,12 +178,13 @@ function datos() {
 				girarTextos: {tags: eval(datos.attr("girTags")), values: eval(datos.attr("girValues"))}
 			},
 			bars: {
+				separation: (datos.attr("barrasmargen"))/100,
 				width: 1, // 3 valores {0: grande, 1: mediana, 2: pequeña},
 				border: {
 					color: '#ba070780',
 					width: 2
 				},
-				margin: 30,
+				margin: 30/100,
 				color: '#c4440980,#1fbc0780,#09ba9c80,#a208ba80', //#c4440980,#1fbc0780,#09ba9c80,#a208ba80
 				highlight: {
 					color: '#93939380'
@@ -330,6 +332,17 @@ function datosPictoricos(state){
 	insLeyenda(state)
 }
 
+// Generar Gráfico Datos Histograma
+function datosSimbolicos(state){
+	insTitulos(state)
+	insChart(state)
+	insBarras(state)
+	state.scale.width > 0 && insGuides(state)
+	state.chart.show.values && insValues(state)
+	state.chart.show.tags && insTags(state)
+	state.chart.config.dataTags && insDataTagsBars(state)
+}
+
 // Insertar Leyenda
 function insLeyenda(state) {
 	const { ctx, container, chart, innerChart, font } = state
@@ -418,13 +431,6 @@ function insPictoricos(state){
 	ctx.save()
 }
 
-// Generar Gráfico Datos Histograma
-function datosSimbolicos(state){
-	insTitulos(state)
-	insChart(state)
-	insBarras(state)
-}
-
 // Generar Barras Histogramas
 function insBarras(state) {
 	const { ctx, innerChart, chart, scale } = state
@@ -438,7 +444,7 @@ function insBarras(state) {
 	if (chart.orientation == 'vertical') {
 		let barWidth = width/lenTag
 		let barheight = height/scaleMax
-		barMargin = barWidth*0.15
+		barMargin = barWidth*chart.bars.separation
 		barWidth = barWidth - barMargin
 		for (let i = 0; i < scaleMax; i++) {
 			let xPos = x0 + barMargin/2
@@ -461,10 +467,10 @@ function insBarras(state) {
 	} else {
 		let barWidth = width/scaleMax
 		let barheight = (height)/lenTag
-		barMargin = barheight*0.15
+		barMargin = barheight*chart.bars.separation
 		barheight = barheight - barMargin
 		for (let i = 0; i < scaleMax; i++) {
-			let yPos = y1 - barMargin/2
+			let yPos = y1 - barMargin/2 + 7
 			let delta = (barheight + barMargin)
 			if (chart.values[i]) {
 				ctx.fillStyle = colorBars[i%colorBars.length]
@@ -639,21 +645,19 @@ function insDataTagsBars(state) {
 	const { x0, y0, x1, y1 } = innerChart.position
 	ctx.save()
 	let imgW = data.barHeight > data.barWidth ? data.barWidth : data.barHeight
-	barMargin = data.barWidth - imgW
+	let barMargin = data.barWidth - imgW
 	ctx.fillStyle = font.color
 	ctx.font = 'bold ' + font.size + 'px ' + font.family
-	for (let i = 0; i < (data.scaleMax-data.scaleMin)/data.scaleInterval; i++) {
-		for (let j = 0; j <= (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
-			if (chart.values[i] && chart.tags[i] && j > (chart.values[i]-data.scaleMin)/data.scaleInterval - 1) {
-				if (chart.orientation == 'vertical') {
-					ctx.textAlign = 'center'
-					ctx.textBaseline = 'bottom'
-					ctx.fillText(chart.values[i], x0 + data.barWidth/2 + (data.barWidth)*i, y1 - data.barHeight - imgW*(chart.values[i]-data.scaleMin)/data.scaleInterval - font.size/3)
-				} else {
-					ctx.textAlign = 'left'
-					ctx.textBaseline = 'middle'
-					ctx.fillText(chart.values[i], x0 + chart.axis.width/4  + font.size/3 + data.barHeight*(j+1), y1 - data.barWidth/2 + font.size/3 - (data.barWidth)*i)
-				}
+	for (let i = 0; i < data.lenTag; i++) {
+		if (chart.config.dataTags[i] == 0 && chart.values[i] && chart.tags[i]) {
+			if (chart.orientation == 'vertical') {
+				ctx.textAlign = 'center'
+				ctx.textBaseline = 'bottom'
+				ctx.fillText(chart.values[i], x0 + data.barWidth/2 + (data.barWidth)*i, y1 - (data.barHeight) - font.size/3)
+			} else {
+				ctx.textAlign = 'left'
+				ctx.textBaseline = 'middle'
+				ctx.fillText(chart.values[i], x0 + chart.axis.width/4  + font.size/3 + data.barHeight*(j+1), y1 - data.barWidth/2 + font.size/3 - (data.barWidth)*i)
 			}
 		}
 	}
@@ -755,4 +759,21 @@ function insGuides(state) {
 	}
 	ctx.restore()
 	ctx.save()
+}
+
+// Resaltar Barras
+function resaltarBarras(state) {
+	const { ctx, innerChart } = state
+	ctx.fillStyle = 'rgba((86, 86, 86,0.5)'
+	//ctx.fillRect()
+}
+
+// Limitar Columnas
+function limitarColumnas(state) {
+
+}
+
+// Proyectar Columnas
+function proyectarColumnas(state) {
+
 }
