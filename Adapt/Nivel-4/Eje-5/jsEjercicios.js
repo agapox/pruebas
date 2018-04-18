@@ -175,7 +175,12 @@ function datos() {
 				dataTags: datos.attr("grafdatatags").split(','),
 				hightLightBar: datos.attr("hightlightbar").split(','),
 				guideLines: {color: datos.attr("escalacolor"), width: eval(datos.attr("escalaancho"))},
-				girarTextos: {tags: eval(datos.attr("girTags")), values: eval(datos.attr("girValues"))}
+				girarTextos: {tags: eval(datos.attr("girTags")), values: eval(datos.attr("girValues"))},
+				lines: {
+					limitLines: datos.attr("limiteVal").split(","),
+					projectionLines: datos.attr("ProyeccionVal").split(","),
+					color: datos.attr("lineaColor"), width: eval(datos.attr("lineaAncho"))
+				}
 			},
 			bars: {
 				separation: (datos.attr("barrasmargen"))/100,
@@ -253,28 +258,30 @@ function datos() {
 
 		data = {
 			maxVal: Math.max(...state.chart.values),
+			minVal: Math.min(...state.chart.values),
 			lenVal: state.chart.values.length,
 			lenTag: state.chart.tags.length,
 			scaleMax: state.scale.max,
-			scaleMin: state.scale.min,
+			scaleMin: state.scale.min > Math.min(...state.chart.values) ? Math.min(...state.chart.values) : state.scale.min,
 			scaleInterval: state.scale.value,
 			innerChart: {
 				width: state.innerChart.position.x1 - state.innerChart.position.x0,
 				height: state.innerChart.position.y1 - state.innerChart.position.y0,
 			}
 		}
-		let divisorLength = data.scaleMin > 1 ? (((data.scaleMax - data.scaleMin)/data.scaleInterval) + 1) : (((data.scaleMax - data.scaleMin)/data.scaleInterval))
+		data.divisorLength = data.scaleMin > 1 ? (((data.scaleMax - data.scaleMin)/data.scaleInterval) + 1) : (((data.scaleMax - data.scaleMin)/data.scaleInterval))
 		if (state.chart.orientation == 'vertical') {
-			data.barHeight =  data.innerChart.height / divisorLength
+			data.barHeight =  data.innerChart.height / data.divisorLength
 			data.barWidth = data.innerChart.width / state.chart.tags.length
 			data.vertDiv = data.scaleMax > data.maxVal ? (data.scaleMax - data.scaleMin)/data.scaleInterval : (data.maxVal - data.scaleMin)/data.scaleInterval
 			if (data.scaleMin > 1) {data.vertDiv+=1}
 		} else {
-			data.barHeight = data.innerChart.width / divisorLength
+			data.barHeight = data.innerChart.width / data.divisorLength
 			data.barWidth = data.innerChart.height / state.chart.tags.length
 			data.vertDiv = data.scaleMax > data.maxVal ? (data.scaleMax - data.scaleMin)/data.scaleInterval : (data.maxVal - data.scaleMin)/data.scaleInterval
 			if (data.scaleMin > 1) {data.vertDiv+=1}
 		}
+		data.diferentialScale = data.scaleMin == 0 ? 0 : data.scaleMin - data.scaleInterval
 
 		//console.log(data)
 		//console.log(state)
@@ -308,39 +315,36 @@ function drawRect(state,x0,y0,x1,y1) {
 }
 
 function initEx(state) {
-	const { ctx } = state
-	const { type } = state.chart
+	const { ctx, scale, chart } = state
+	const { config, show, type } = chart
 	ctx.save()
+	insTitulos(state)
+	insChart(state)
+	state.chart.config.hightLightBar != '' && resaltarBarras(state)
+	state.scale.width > 0 && insGuides(state)
+	state.chart.show.values && insValues(state)
+	state.chart.show.tags && insTags(state)
+	state.chart.config.dataTags && insDataTagsBars(state)
 	if (type == 'pictorico') {
 		datosPictoricos(state)
 	} else {
 		datosSimbolicos(state)
 	}
+	config.lines.limitLines != '' && limitarColumnas(state)
+	config.lines.projectionLines != '' && proyectarColumnas(state)
 	ctx.restore()
 	ctx.save()
 }
 
 // Generar Gráfico Datos Histograma
 function datosPictoricos(state){
-	insTitulos(state)
-	insChart(state)
 	insPictoricos(state)
-	state.scale.width > 0 && insGuides(state)
-	state.chart.show.values && insValues(state)
-	state.chart.show.tags && insTags(state)
-	state.chart.config.dataTags && insDataTagsBars(state)
 	insLeyenda(state)
 }
 
 // Generar Gráfico Datos Histograma
 function datosSimbolicos(state){
-	insTitulos(state)
-	insChart(state)
 	insBarras(state)
-	state.scale.width > 0 && insGuides(state)
-	state.chart.show.values && insValues(state)
-	state.chart.show.tags && insTags(state)
-	state.chart.config.dataTags && insDataTagsBars(state)
 }
 
 // Insertar Leyenda
@@ -398,16 +402,16 @@ function insPictoricos(state){
 	img.src = chart.image.src
 	let colorBars = chart.bars.color.split(',')
 	let barMargin
-	let heighVal = 0//data.scaleMin > 1 ? 1 : 0
+	let heighVal = data.scaleMin > 2 ? 1 : 0
 	if (chart.orientation == 'vertical') {
 		let imgW = data.barHeight > data.barWidth ? data.barWidth : data.barHeight
 		let imgH = imgW
 		barMargin = data.barWidth - imgW
 		img.onload = function() {
 			for (let i = 0; i <= (data.scaleMax-data.scaleMin)/data.scaleInterval; i ++) {
-				for (let j = 0; j <= (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
+				for (let j = 0; j < (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
 					chart.tags[i] &&
-						ctx.drawImage(img, x0 + barMargin/2 + (data.barWidth)*i, y1 - imgW*(j+heighVal),imgH,-imgW)
+						ctx.drawImage(img, x0 + barMargin/2 + (data.barWidth)*i, y1 - imgW*(j),imgH,-imgW)
 				}
 			}
 		}
@@ -417,12 +421,12 @@ function insPictoricos(state){
 		let barMargin = data.barHeight*0.2 - imgW
 		img.onload = function() {
 			for (let i = 0; i <= (data.scaleMax-data.scaleMin)/data.scaleInterval; i ++) {
-				for (let j = 0; j <= (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
+				for (let j = 0; j < (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
 					chart.tags[i] &&
 						// imagenes pegadas al eje Y
 						// ctx.drawImage(img, x0 + chart.axis.width/4 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
 						// imágenes al medio del valor
-						ctx.drawImage(img, x0 + chart.axis.width/2 + (data.barHeight)*(j+heighVal), y1 - data.barWidth/2 + imgW/2 - (data.barWidth)*i + 100/font.size,imgH,-imgW)
+						ctx.drawImage(img, x0 + chart.axis.width/2 + (data.barHeight)*(j), y1 - data.barWidth/2 + imgW/2 - (data.barWidth)*i,imgH,-imgW)
 				}
 			}
 		}
@@ -433,7 +437,7 @@ function insPictoricos(state){
 
 // Generar Barras Histogramas
 function insBarras(state) {
-	const { ctx, innerChart, chart, scale } = state
+	const { ctx, innerChart, chart, scale, container } = state
 	const { lenVal, lenTag } = data
 	const { x0, y0, x1, y1 } = innerChart.position
 	const { width, height } = data.innerChart
@@ -442,46 +446,45 @@ function insBarras(state) {
 	let colorBars = chart.bars.color.split(',')
 	let barMargin
 	if (chart.orientation == 'vertical') {
-		let barWidth = width/lenTag
-		let barheight = height/scaleMax
-		barMargin = barWidth*chart.bars.separation
-		barWidth = barWidth - barMargin
-		for (let i = 0; i < scaleMax; i++) {
-			let xPos = x0 + barMargin/2
-			let delta = (barWidth + barMargin)
+		barMargin = data.barWidth*chart.bars.separation
+		let newBarWidth = data.barWidth - barMargin
+		let xPos = x0 + barMargin/2
+		let delta = (newBarWidth + barMargin)
+		for (let i = 0; i < data.lenTag; i++) {
+			let yPosFin = -data.barHeight*(((chart.values[i]) - data.diferentialScale)/data.scaleInterval)
 			if (chart.values[i]) {
 				ctx.fillStyle = colorBars[i%colorBars.length]
-				ctx.fillRect(xPos + delta*i,y1,barWidth,-barheight*chart.values[i])
+				ctx.fillRect(xPos + delta*i,y1,newBarWidth,yPosFin)
 				if (chart.bars.border.width > 0) {
 					ctx.beginPath()
 					ctx.lineWidth = chart.bars.border.width
 					ctx.strokeStyle = chart.bars.border.color
 					ctx.moveTo(xPos + delta*i,y1)
-					ctx.lineTo(xPos + delta*i,y1 - barheight*chart.values[i])
-					ctx.lineTo(xPos + delta*(i+1) - barMargin,y1 - barheight*chart.values[i])
+					ctx.lineTo(xPos + delta*i,y1  + yPosFin)
+					ctx.lineTo(xPos + delta*(i+1) - barMargin,y1 + yPosFin)
 					ctx.lineTo(xPos + delta*(i+1) - barMargin,y1)
 					ctx.stroke()
 				}
 			}
 		}
 	} else {
-		let barWidth = width/scaleMax
-		let barheight = (height)/lenTag
-		barMargin = barheight*chart.bars.separation
-		barheight = barheight - barMargin
-		for (let i = 0; i < scaleMax; i++) {
-			let yPos = y1 - barMargin/2 + 7
-			let delta = (barheight + barMargin)
+		barMargin = data.barWidth*chart.bars.separation
+		let newBarWidth = data.barWidth - barMargin
+		let yPos = y1 - barMargin/2
+		let delta = (newBarWidth + barMargin)
+		for (let i = 0; i < data.lenTag; i++) {
+			let xPosFin = data.barHeight*(((chart.values[i])-data.diferentialScale)/data.scaleInterval)
+			//resaltarBarras(state, container.position.x0, y1 - (delta)*i,xPosFin + (x0 - container.position.x0) + data.barHeight,-newBarWidth - barMargin, i)
 			if (chart.values[i]) {
 				ctx.fillStyle = colorBars[i%colorBars.length]
-				ctx.fillRect(x0,yPos - delta*i,barWidth*chart.values[i],-barheight)
+				ctx.fillRect(x0,yPos - delta*i,xPosFin,-newBarWidth)
 				if (chart.bars.border.width > 0) {
-					ctx.beginPath()
-					ctx.lineWidth = chart.bars.border.width
 					ctx.strokeStyle = chart.bars.border.color
+					ctx.lineWidth = chart.bars.border.width
+					ctx.beginPath()
 					ctx.moveTo(x0,yPos - delta*i)
-					ctx.lineTo(x0 + barWidth*chart.values[i],yPos - delta*i)
-					ctx.lineTo(x0 + barWidth*chart.values[i],yPos - delta*(i+1) + barMargin)
+					ctx.lineTo(x0 + xPosFin,yPos - delta*i)
+					ctx.lineTo(x0 + xPosFin,yPos - delta*(i+1) + barMargin)
 					ctx.lineTo(x0,yPos - delta*(i+1) + barMargin)
 					ctx.stroke()
 				}
@@ -649,15 +652,16 @@ function insDataTagsBars(state) {
 	ctx.fillStyle = font.color
 	ctx.font = 'bold ' + font.size + 'px ' + font.family
 	for (let i = 0; i < data.lenTag; i++) {
+		let barHeightQtty = (((chart.values[i]) - data.diferentialScale)/data.scaleInterval)
 		if (chart.config.dataTags[i] == 0 && chart.values[i] && chart.tags[i]) {
 			if (chart.orientation == 'vertical') {
 				ctx.textAlign = 'center'
 				ctx.textBaseline = 'bottom'
-				ctx.fillText(chart.values[i], x0 + data.barWidth/2 + (data.barWidth)*i, y1 - (data.barHeight) - font.size/3)
+				ctx.fillText(chart.values[i], x0 + data.barWidth/2 + (data.barWidth)*i, y1 - data.barHeight/2 - data.barHeight*barHeightQtty + font.size/3)
 			} else {
 				ctx.textAlign = 'left'
 				ctx.textBaseline = 'middle'
-				ctx.fillText(chart.values[i], x0 + chart.axis.width/4  + font.size/3 + data.barHeight*(j+1), y1 - data.barWidth/2 + font.size/3 - (data.barWidth)*i)
+				ctx.fillText(chart.values[i], x0 + chart.axis.width/4  + font.size/3 + data.barHeight*barHeightQtty, y1 - data.barWidth/2 - (data.barWidth)*i)
 			}
 		}
 	}
@@ -675,9 +679,12 @@ function insTags(state) {
 		if (chart.tags[i]) {
 			if (chart.orientation == 'vertical') {
 				ctx.save()
-				ctx.textAlign = girarTexto > 0 ? 'right' : 'center'
+				// si se quiere que el final de la letra quede centrado con respecto a la barra eliminar "a" y ctx.textAlign = girarTexto > 0 ? 'right' : 'center'
+				ctx.textAlign = girarTexto > 0 ? 'center' : 'center'
 				ctx.textBaseline = girarTexto > 0 ? 'middle' : 'top'
-				ctx.translate(x0+ data.barWidth/2 + (data.barWidth)*(i), chart.position.y1 + 100/font.size)
+				// si se quiere que el final de la letra quede centrado con respecto a la barra eliminar "a"
+				let a = Math.sin(state.chart.config.girarTextos.tags*Math.PI/180)*state.ctx.measureText(chart.tags[i]).width
+				ctx.translate(x0+ data.barWidth/2 + (data.barWidth)*(i), chart.position.y1 + 100/font.size + a/2)
 				girarTexto > 0 && ctx.rotate(-girarTexto*Math.PI/180)
 				ctx.fillStyle = font.color
 				ctx.font = font.size + 'px ' + font.family
@@ -688,7 +695,9 @@ function insTags(state) {
 				ctx.save()
 				ctx.textAlign = 'right'
 				ctx.textBaseline = 'middle'
-				ctx.translate(chart.position.x0 - 10, y1 - data.barWidth/2 - data.barWidth*i + 100/font.size)
+				// si se quiere que el final de la letra quede centrado con respecto a la barra eliminar "a"
+				let a = Math.sin(state.chart.config.girarTextos.tags*Math.PI/180)*state.ctx.measureText(chart.tags[i]).width
+				ctx.translate(chart.position.x0 - 10, y1 - data.barWidth/2 - data.barWidth*i - a/2)
 				girarTexto > 0 && ctx.rotate(-girarTexto*Math.PI/180)
 				ctx.fillStyle = font.color
 				ctx.font = font.size + 'px ' + font.family
@@ -763,17 +772,89 @@ function insGuides(state) {
 
 // Resaltar Barras
 function resaltarBarras(state) {
-	const { ctx, innerChart } = state
-	ctx.fillStyle = 'rgba((86, 86, 86,0.5)'
-	//ctx.fillRect()
+	const { ctx, chart, innerChart, container } = state
+	const { config } = chart
+	const { x0, y0, x1, y1 } = innerChart.position
+	ctx.save()
+	ctx.fillStyle = 'rgba(234, 232, 232,0.3)'
+	ctx.strokeStyle = 'rgba(234, 232, 232,0.4)'
+	let barMargin = data.barWidth*chart.bars.separation
+	let newBarWidth = data.barWidth - barMargin
+	let delta = (newBarWidth + barMargin)
+	for (let i = 0; i < data.lenTag; i++) {
+		//resaltarBarras(state, x0 + delta*i, container.position.y1, delta, yPosFin - data.barHeight - (container.position.y1-y1), i)
+		if (eval(config.hightLightBar[i]) === 0) {
+			if (chart.orientation == 'vertical') {
+				let yPosFin = -data.barHeight*(((chart.values[i]) - data.diferentialScale)/data.scaleInterval)
+				ctx.rect(x0 + delta*i, container.position.y1, delta, yPosFin - data.barHeight - (container.position.y1-y1))
+			} else {
+				let yPos = y1 - barMargin/2
+				let xPosFin = data.barHeight*(((chart.values[i])-data.diferentialScale)/data.scaleInterval)
+				ctx.rect(container.position.x0, y1 - (delta)*i,xPosFin + (x0 - container.position.x0) + data.barHeight,-newBarWidth - barMargin)
+			}
+		}
+	}
+	ctx.stroke()
+	ctx.fill()
+	ctx.restore()
+	ctx.save()
 }
 
 // Limitar Columnas
 function limitarColumnas(state) {
-
+	const { ctx, chart } = state
+	const { lines } = chart.config
+	ctx.save()
+	if (chart.config.lines.width > 0 && lines.limitLines != '' ) {
+		ctx.lineWidth = lines.width
+		ctx.strokeStyle = lines.color
+		ctx.setLineDash([10, 5]);
+		ctx.beginPath()
+		for (let i = 0; i < lines.limitLines.length; i ++) {
+			if (lines.limitLines[i] >= data.scaleMin && lines.limitLines[i] <= data.scaleMax ) {
+				if (chart.orientation == 'vertical') {
+					ctx.moveTo(chart.position.x0 + chart.axis.width/2, chart.position.y1 - chart.axis.width/2 - data.barHeight*((lines.limitLines[i]-data.diferentialScale)/data.scaleInterval))
+					ctx.lineTo(chart.position.x1 - chart.axis.width, chart.position.y1 - chart.axis.width/2 - data.barHeight*((lines.limitLines[i]-data.diferentialScale)/data.scaleInterval))
+				} else {
+					ctx.moveTo(chart.position.x0 + chart.axis.width/2 + data.barHeight*((lines.limitLines[i]-data.diferentialScale)/data.scaleInterval), chart.position.y1 - chart.axis.width/2)
+					ctx.lineTo(chart.position.x0 + chart.axis.width/2 + data.barHeight*((lines.limitLines[i]-data.diferentialScale)/data.scaleInterval), chart.position.y0 + chart.axis.width)
+				}
+			}
+		}
+		ctx.stroke()
+	}
+	ctx.closePath()
+	ctx.restore()
+	ctx.save()
 }
 
 // Proyectar Columnas
 function proyectarColumnas(state) {
-
+	const { ctx, chart } = state
+	const { lines } = chart.config
+	ctx.save()
+	if (chart.config.lines.width > 0 && lines.projectionLines != '' ) {
+		ctx.lineWidth = lines.width
+		ctx.strokeStyle = 'green'//lines.color
+		ctx.setLineDash([10, 5]);
+		ctx.beginPath()
+		for (let i = 0; i < data.lenVal; i ++) {
+			if (lines.projectionLines[i] == 0) {
+				let dif = data.barHeight*((chart.values[i]-data.diferentialScale)/data.scaleInterval)
+				//chart.type == 'pictorico' ? dif += 100 : dif 
+				if (chart.type == 'pictorico') {}
+				if (chart.orientation == 'vertical') {
+					ctx.moveTo(chart.position.x0 + chart.axis.width/2, chart.position.y1 - chart.axis.width/2 - dif)
+					ctx.lineTo(chart.position.x0 + chart.axis.width/4 + data.barWidth*(i+1), chart.position.y1 - chart.axis.width/2 - dif)
+				} else {
+					ctx.moveTo(chart.position.x0 + chart.axis.width/2 + dif, chart.position.y1 - chart.axis.width/2)
+					ctx.lineTo(chart.position.x0 + chart.axis.width/2 + dif, chart.position.y1 - chart.axis.width*2 - data.barWidth*(i+1))
+				}
+			}
+		}
+		ctx.stroke()
+	}
+	ctx.closePath()
+	ctx.restore()
+	ctx.save()
 }
