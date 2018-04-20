@@ -128,7 +128,6 @@ function datos() {
 			x1: c.width - (state.canvas.padding.right),
 			y1: c.height - (state.canvas.padding.bottom) 
 		}
-		
 		state.chart = {
 			orientation: datos.attr("grafPos"),
 			type: datos.attr("tipograf"),
@@ -205,7 +204,7 @@ function datos() {
 		state.chart.tags.map( el => { if (maxWord < el.length) {maxWord = el}})
 
 		if (state.chart.orientation == 'vertical') {
-			maxValue = Math.max(...state.chart.values)
+			let maxValue = Math.max(...state.chart.values)
 			tagWordSizeX = Math.sin(state.chart.config.girarTextos.tags*Math.PI/180)*state.ctx.measureText(maxWord).width
 			valueWordSizeY = state.scale.max > maxValue ? state.ctx.measureText(state.scale.max).width : state.ctx.measureText(maxValue).width 
 		} else {
@@ -256,7 +255,7 @@ function datos() {
 			state.innerChart.position.x1 = state.chart.position.x1 - state.chart.style.innerPadding.x - state.chart.style.padding.right - state.chart.axis.width
 		}
 
-		data = {
+		let data = {
 			maxVal: Math.max(...state.chart.values),
 			minVal: Math.min(...state.chart.values),
 			lenVal: state.chart.values.length,
@@ -409,7 +408,8 @@ function insPictoricos(state){
 		barMargin = data.barWidth - imgW
 		img.onload = function() {
 			for (let i = 0; i <= (data.scaleMax-data.scaleMin)/data.scaleInterval; i ++) {
-				for (let j = 0; j < (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
+				let lenFor = heighVal + (chart.values[i]-data.scaleMin)/data.scaleInterval
+				for (let j = 0; j < lenFor; j++) {
 					chart.tags[i] &&
 						ctx.drawImage(img, x0 + barMargin/2 + (data.barWidth)*i, y1 - imgW*(j),imgH,-imgW)
 				}
@@ -421,7 +421,8 @@ function insPictoricos(state){
 		let barMargin = data.barHeight*0.2 - imgW
 		img.onload = function() {
 			for (let i = 0; i <= (data.scaleMax-data.scaleMin)/data.scaleInterval; i ++) {
-				for (let j = 0; j < (chart.values[i]-data.scaleMin)/data.scaleInterval; j++) {
+				let lenFor = heighVal + (chart.values[i]-data.scaleMin)/data.scaleInterval
+				for (let j = 0; j < lenFor; j++) {
 					chart.tags[i] &&
 						// imagenes pegadas al eje Y
 						// ctx.drawImage(img, x0 + chart.axis.width/4 + (barheight)*j, y1 - barMargin/2 - (barWidth)*i,imgH,-imgW)
